@@ -98,7 +98,7 @@ table.ws input,table.ws select{padding:7px 8px;font-size:.9rem;border-radius:8px
 .step-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mini{font-size:.85rem;color:var(--muted)}
 nav.top .links{margin-left:auto;display:flex;gap:4px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
-nav.top .links a{text-decoration:none;color:var(--navy);font-size:.86rem;font-weight:500;padding:6px 10px;border-radius:999px}
+nav.top .links a{text-decoration:none;color:var(--navy);font-size:.92rem;font-weight:600;padding:6px 12px;border-radius:999px}
 nav.top .links a:hover{background:var(--sky)}
 .hero img{width:100%;height:auto;display:block;border-radius:16px;border:1px solid var(--line)}
 .spine{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px}
@@ -129,7 +129,49 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
 .sr{position:absolute;left:-9999px}
 @media (max-width:640px){h1{font-size:1.9rem}h2{font-size:1.6rem}section{padding:40px 0}.timeline{grid-template-columns:70px 1fr}}
 @media print{nav.top,.toolbar,.btn{display:none}section{page-break-inside:avoid}}
+/* --- v3 eklemeleri: kolaylaştırıcı modu, canlı grup senkronu, menü, ajanlar --- */
+body:not(.fac-on) .fac-only{display:none !important}
+.facnote{border:2px dashed var(--red);background:#FBF3F6;border-radius:14px;padding:16px 20px;margin-top:18px}
+.facnote h4{color:var(--red);margin-bottom:.5em}
+.facnote p,.facnote li{font-size:.92rem}
+.facnote ul,.facnote ol{margin:.2em 0 .6em;padding-left:20px}
+.facnote table{font-size:.88rem;background:#fff}
+.facbtn{font:inherit;font-size:.8rem;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:999px;padding:5px 10px;cursor:pointer;white-space:nowrap;flex:none}
+body.fac-on .facbtn{background:var(--red);color:#fff;border-color:var(--red)}
+.sync{font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:999px;background:#EEF1F5;color:var(--muted);white-space:nowrap;flex:none}
+.sync.on{background:#E3F3EC;color:var(--green)} .sync.err{background:#F7E6EC;color:var(--red)} .sync.wait{background:var(--cream);color:var(--navy)}
+@media (max-width:640px){.sync{display:none}.facbtn .t{display:none}.facbtn{position:fixed;right:12px;bottom:12px;z-index:30;box-shadow:0 2px 10px rgba(11,37,89,.25)}}
+nav.top .links{min-width:0}
+#menu .card,.gx>*{min-width:0}
+.modal{position:fixed;inset:0;background:rgba(11,37,89,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:16px;padding:22px 24px;max-width:360px;width:100%}
+.modal .err{color:var(--red);font-size:.88rem;min-height:1.3em;margin:6px 0 0}
+.tscroll{overflow-x:auto}
+table.menu{font-size:.9rem;min-width:620px}
+table.menu tr.pick{cursor:pointer}
+table.menu tr.pick:hover td{background:#F3F9FC}
+table.menu tr.pick.sel td{background:var(--cream)}
+table.menu tr.pick td:first-child{font-weight:700;color:var(--blue);white-space:nowrap}
+table.menu tr.pick.sel td:first-child::after{content:" ✓";color:var(--green)}
+.layer{border-radius:14px;padding:18px 20px;color:#fff}
+.layer b{display:block;font-family:'Fira Sans Condensed';font-size:1.3rem;margin:6px 0 2px}
+.layer i{font-style:normal;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.layer p{margin:0;font-size:.93rem}
+.panelgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.panelgrid .pg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.88rem;background:#fff}
+.pg h4{margin:0 0 4px}
+.pg dt{font-weight:600;color:var(--navy);margin-top:6px}
+.pg dd{margin:0;white-space:pre-wrap}
+
 </style>
+<script>
+/* ===== CANLI GRUP KARTLARI · Firebase Realtime Database =====
+   ATOLYE_DB_URL: Realtime Database → Data sekmesinin üstünde yazan adres. Boş bırakılırsa sayfa yerel modda çalışır.
+   Rules'ta "gbyz" düğümü okuma/yazmaya açık olmalı. */
+window.ATOLYE_DB_URL = 'https://kesfet-caselab-default-rtdb.europe-west1.firebasedatabase.app';
+window.ATOLYE_OTURUM = 'atolye1';
+</script>
 </head>
 <body>
 
@@ -139,9 +181,11 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
   <select id="n_grup" data-key="grup" class="grupsel" aria-label="Grubum">
     <option value="">Grubum…</option><option>Grup 1</option><option>Grup 2</option><option>Grup 3</option><option>Grup 4</option><option>Grup 5</option>
   </select>
+  <span class="sync" id="syncst" title="Grup kartlarının paylaşım durumu">Yerel mod</span>
   <div class="links">
-    <a href="#omurga">Omurga</a><a href="#tanisma">Tanışma</a><a href="#prompt">Prompt</a><a href="#gem">Gem</a><a href="#blok1">Blok 1</a><a href="#global">Örnekler</a><a href="#frontelco">Frontelco</a><a href="#kaslar">Beş kas</a><a href="#ozet">B1 özet</a><a href="#blok2">Blok 2</a><a href="#u1">U1</a><a href="#u2">U2</a><a href="#u3">U3</a><a href="#blok3">Blok 3</a><a href="#adim1">A1</a><a href="#adim2">A2</a><a href="#adim3">A3</a><a href="#adim4">A4</a><a href="#galeri">Galeri</a><a href="#kapanis">Kapanış</a><a href="#notlar">Notlarım</a>
+    <a href="#tanisma">Açılış</a><a href="#blok1">Blok 1</a><a href="#blok2">Blok 2</a><a href="#blok3">Blok 3</a>
   </div>
+  <button type="button" class="facbtn" id="facBtn" title="Kolaylaştırıcı modu">🔒<span class="t"> Kolaylaştırıcı</span></button>
 </div></nav>
 <div class="gbanner" id="gbanner">Önce sağ üstteki menüden <b>grubunuzu</b> seçin; sonra menüden yapacağınız adıma gidin. Kutular grubunuza göre etiketlenir.</div>
 
@@ -151,7 +195,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
   <div style="margin-top:28px">
     <p class="kicker">Günün omurgası</p>
     <h2>Üç soru, üç blok — her blokta kısa anlatım, bol uygulama</h2>
-    <p class="lead">Bu sayfa gün boyunca açık kalır: her adımda ne yapacağınızı buradan izler, çalışma sonuçlarınızı buradaki kutulara yazarsınız. Yazdıklarınız yalnızca kendi tarayıcınızda saklanır; paylaşım anında <b>Kopyala</b> düğmesiyle sohbete yapıştırırsınız.</p>
+    <p class="lead">Bu sayfa gün boyunca açık kalır: her adımda ne yapacağınızı buradan izler, çalışma sonuçlarınızı buradaki kutulara yazarsınız. <b>Grup kartlarına</b> yazdıklarınız grubunuzun diğer üyelerinin ekranında da anında görünür (sağ üstte “Canlı” yazıyorsa); kişisel notlarınız yalnızca kendi tarayıcınızda kalır. Paylaşım anında <b>Kopyala</b> düğmesiyle sohbete yapıştırırsınız.</p>
     <div class="spine">
       <div class="q"><span class="num">1</span><b>Ne öğrenmeliyim?</b>YZ hizmet işini nasıl dönüştürüyor; global örnekler; Frontelco mini-vakası; bugünden geliştirilecek beş kas.</div>
       <div class="q"><span class="num c">2</span><b>Neyi farklı yapmalıyım?</b>Dijital uzman DNA'sı; haftalık işleri dört kovaya ayırmak; YZ'ye devredilecek bir iş.</div>
@@ -162,7 +206,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
         <h3>Günün akışı</h3>
         <div class="timeline">
           <div class="t">09:30</div><div>Açılış ve tanışma · Altın Kural · Prompt nasıl olmalı?</div>
-          <div class="t">09:50</div><div>İlk çalışma: <b>Atölye Gem'imi kuruyorum</b> (gün boyu kullanacağınız Gem)</div>
+          <div class="t">09:50</div><div>İlk çalışma: <b>Atölye Gem'imi kuruyorum</b> (gün boyu kullanacağınız Gem) · ardından <b>Google Ekosisteminde YZ Ajanları</b></div>
           <div class="t">10:15</div><div>Ara (15′)</div>
           <div class="t">10:30</div><div><b>Blok 1 · Ne öğrenmeliyim?</b> — global örnekler, Frontelco grup çalışması, beş kas</div>
           <div class="t">12:00</div><div>Öğle arası (60′)</div>
@@ -384,7 +428,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
   <details><summary>18 · Hikâye Anlatımını Geliştirme <span class="tag">Galeri · Kapanış</span></summary><div class="body">
     <p>Veriyi ve planı dinleyenin hatırlayacağı bir akışa koyar: durum → zorluk → karar → ilk adım. Galeri sunumunun 3 dakikasını ve kapanıştaki kişisel taahhüdü biçimlendirir. Galeri oylaması tabloyu değil, aklında kalan sahneyi oylar.</p>
 <pre class="prompt"><b>Rol:</b> Operasyon ekiplerine kısa ve ikna edici sunum hazırlayan bir iletişim koçusun.
-<b>Bağlam:</b> Beyaz Sayfa Kartı'mız: israf (tekrar çağrı), yeni akış (6 adım), user story ve sinyaller, mikro-bahis (1 ekip, 3 ay), pre-mortem'den 3 önlem.
+<b>Bağlam:</b> Beyaz Sayfa Kartı'mız: israf (tekrar çağrı), yeni akış (6 adım), SCAMPER fikri ve ölçüt çifti, mikro-bahis (1 ekip, 2 hafta), pre-mortem'den en büyük risk, önlem ve durma kuralı.
 <b>Görev:</b> 3 dakikalık sunum metni yaz: ilk 20 saniyede müşterinin yaşadığı anı kurgusal bir sahneyle aç, sonra israfı tek sayıyla adlandır, yeni akışı tek cümleyle anlat, mikro-bahsi ve sinyali söyle, “en cesur muhakememiz” ile kapat.
 <b>Kurallar:</b> Gerçek müşteri/çalışan detayı yok; en fazla 380 kelime; jargon yerine sahada kullanılan dil; “devrim” gibi abartı kelime yok.
 <b>Format:</b> Zaman damgalı 5 bölüm (0:00 · 0:20 · 1:00 · 2:00 · 2:40).</pre></div></details>
@@ -418,6 +462,14 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
         <h4>Takıldıysanız</h4>
         <p class="small" style="margin:0">Gem oluşturma seçeneği görünmüyorsa aynı talimatı normal bir Gemini sohbetinin ilk mesajı olarak yapıştırın; gün boyu o sohbette kalın. Arayüz adları sürüme göre değişebilir (“Gem manager”, “Create Gem”); mantık aynıdır: ad · talimat · kaydet.</p>
       </div>
+      <div class="facnote fac-only">
+        <h4>Kolaylaştırıcı notu · Gem kurulumu</h4>
+        <ul>
+          <li>İlk 3 dakikada odada “Gem'ler menüsü görünmüyor” diyenleri sayın; 3'ten fazlaysa herkese “normal sohbet + ilk mesaj” yolunu duyurun, beklemeyin.</li>
+          <li>En sık yakalanan eksikler (paylaşımda bunları duymayı bekleyin): 5 maddeyi aşma · “denetle” listesini unutma · ilk mesajda rol sormadan üretmeye başlama · kurgusal iş yerine gerçek veri isteme.</li>
+          <li>[ekibim] alanına kişi ya da müşteri adı yazan olursa Altın Kural'ı burada, nazikçe ama açıkça hatırlatın; günün geri kalanı için normu bu an belirler.</li>
+        </ul>
+      </div>
     </div>
     <div>
       <div class="card">
@@ -438,6 +490,99 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
       </div>
     </div>
   </div>
+</div></section>
+
+<!-- ============ GOOGLE EKOSİSTEMİNDE YZ AJANLARI ============ -->
+<section id="ajanlar"><div class="wrap">
+  <p class="kicker">Açılış · Gem'den sonra · kısa anlatım</p>
+  <h2>Google Ekosisteminde YZ Ajanları</h2>
+  <p class="lead">Müşteri deneyimi ve operasyon süreçlerinde <b>3 katmanlı ajan mimarisi</b>, uygulamalar ve pratik senaryolar. Az önce kurduğunuz Gem bu haritada yerini alıyor: 2. katmanda, iş biriminin kod yazmadan tanımladığı rol bazlı ajan.</p>
+
+  <p class="kicker blue" style="margin-top:18px">Mimari bakış · 3 katmanlı YZ ajan ekosistemi</p>
+  <div class="grid g3">
+    <div class="layer l1"><i>1 · Google Cloud</i><b>Müşteri Deneyimi Katmanı</b><p>Çağrı merkezi otonom sesli ve yazılı ajanları.</p></div>
+    <div class="layer l2"><i>2 · Google Workspace</i><b>İş Akışı ve Üretkenlik</b><p>Kodsuz ofis otomasyonu ve uzman takım asistanları.</p></div>
+    <div class="layer l4"><i>3 · Veri ve entegrasyon</i><b>Veri ve Entegrasyon</b><p>Saha uygulamaları ve otomatik yönetim raporlaması.</p></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:20px">
+    <div class="card">
+      <span class="badge">1. Katman · Google Cloud</span>
+      <h3 style="margin-top:10px">Müşteri Deneyimi ve Altyapı Ajanları</h3>
+      <p>Büyük ölçekli çağrı operasyonlarında arka uç sistemlerle doğrudan konuşan kurumsal ajanlardır.</p>
+      <ul style="margin:0 0 10px;padding-left:20px">
+        <li><b>Vertex AI Agent Builder:</b> çoklu ajan orkestrasyonu ve kurumsal veri doğrulaması.</li>
+        <li><b>Dialogflow CX:</b> 7/24 sesli ve yazılı otonom müşteri karşılama.</li>
+        <li><b>Agent Assist:</b> temsilci ekranında anlık öneri ve çağrı özeti.</li>
+      </ul>
+      <div class="modbox">
+        <div class="kova"><b>Fatura İtiraz Ajanı</b><span class="small">Vertex AI üzerinden CRM sorgulayan otonom çözüm.</span></div>
+        <div class="kova"><b>Canlı Temsilci Asistanı</b><span class="small">Agent Assist destekli anlık bilgi makalesi önerisi.</span></div>
+        <div class="kova"><b>Otomatik Çağrı Özeti</b><span class="small">Görüşme bitiminde saniyeler içinde CRM kaydı.</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="badge c">2. Katman · Google Workspace</span>
+      <h3 style="margin-top:10px">Kodsuz İş Akışı ve Takım Üretkenliği</h3>
+      <p>Operasyon liderlerinin ve İK/Eğitim ekiplerinin kod yazmadan kendi ajanlarını tanımladığı katmandır.</p>
+      <ul style="margin:0 0 10px;padding-left:20px">
+        <li><b>Workspace Studio:</b> doğal dille çok adımlı iş akışı otomasyonu.</li>
+        <li><b>Gemini Gems:</b> rol bazlı özelleştirilmiş uzman ekip ajanları.</li>
+        <li><b>NotebookLM:</b> yalnızca yüklenen kurumsal dokümana dayanan, kaynak gösteren doküman ve eğitim rehberi.</li>
+      </ul>
+      <div class="modbox">
+        <div class="kova"><b>Workspace Studio · Şikâyet Akışı</b><span class="small">Form kaydını aciliyetine göre sınıflandırıp ilgili Google Chat kanalına otomatik görev atar.</span></div>
+        <div class="kova"><b>Gemini Gems · “Kalite Koçu”</b><span class="small">Çağrı metinlerini Global Bilgi kalite kriterlerine göre değerlendirip geri bildirim üretir.</span></div>
+        <div class="kova"><b>NotebookLM · Kampanya Rehberi</b><span class="small">Yüzlerce sayfalık kampanya prosedüründen temsilcilere anında sesli ve yazılı yanıt sunar.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">3. Katman ve karar rehberi · Veri katmanı ve uygulama seçim matrisi</h3>
+  <div class="tscroll">
+  <table>
+    <tr><th>Ajan tipi</th><th>Ana uygulama</th><th>Tanımlayan ekip</th><th>Örnek senaryo</th></tr>
+    <tr><td><b>Müşteri &amp; çağrı ajanı</b></td><td>Vertex AI &amp; Dialogflow CX</td><td>BT ve CX mimarları</td><td>Sesli fatura itirazı çözümü</td></tr>
+    <tr><td><b>Otonom iş akışı</b></td><td>Workspace Studio</td><td>Operasyon yöneticileri</td><td>E-posta sınıflandırma ve görev atama</td></tr>
+    <tr><td><b>Rol bazlı koç ajan</b></td><td>Gemini Gems &amp; NotebookLM</td><td>Takım liderleri ve eğitim</td><td>Çağrı kalite puanlama koçu</td></tr>
+    <tr><td><b>Veri &amp; raporlama</b> <span class="mini">(3. katman)</span></td><td>BigQuery &amp; Apps Script</td><td>İş zekâsı ve raporlama</td><td>Otomatik günlük SLA ve AHT sunumu</td></tr>
+    <tr><td><b>Saha operasyon</b> <span class="mini">(3. katman)</span></td><td>AppSheet (Gemini)</td><td>Süreç analistleri</td><td>Görsel okuma ve onay uygulaması</td></tr>
+  </table>
+  </div>
+
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card navy">
+      <h3>Hibrit yaklaşımla operasyonel hız</h3>
+      <p class="muted" style="margin:0">Arka uç entegrasyonları BT tarafından <b style="color:#fff">Vertex AI</b> ile kurulurken, günlük operasyonel süreçler <b style="color:#fff">Gemini Gems</b> ve <b style="color:#fff">Workspace Studio</b> ile doğrudan iş birimlerince tasarlanır. Bugün atölyede çalışacağımız yer 2. katman: Gem'i siz kurarsınız, siz denetlersiniz.</p>
+    </div>
+    <div class="card cream">
+      <h3>Benim notum · hangi katman? <span class="small muted" style="font-family:'Fira Sans';font-weight:400">(2 dakika)</span></h3>
+      <p class="small" style="margin:0 0 4px">Her senaryo için katmanı seçin; sonra kendi ekibiniz için bir senaryo yazın.</p>
+      <label for="aj_q1">Müşteri gece 02:00'de faturasındaki ek ücrete sesli itiraz ediyor; ajan CRM'i sorgulayıp çözüyor.</label>
+      <select id="aj_q1" data-key="ajan_q1"><option value="">Katman…</option><option>1 · Müşteri deneyimi (Google Cloud)</option><option>2 · İş akışı ve üretkenlik (Workspace)</option><option>3 · Veri ve entegrasyon</option></select>
+      <label for="aj_q2">Şikâyet formu aciliyete göre sınıflanıp ilgili ekibin Chat kanalına görev olarak düşüyor.</label>
+      <select id="aj_q2" data-key="ajan_q2"><option value="">Katman…</option><option>1 · Müşteri deneyimi (Google Cloud)</option><option>2 · İş akışı ve üretkenlik (Workspace)</option><option>3 · Veri ve entegrasyon</option></select>
+      <label for="aj_q3">Her sabah SLA ve AHT sunumu kendiliğinden hazırlanıp yöneticiye gidiyor.</label>
+      <select id="aj_q3" data-key="ajan_q3"><option value="">Katman…</option><option>1 · Müşteri deneyimi (Google Cloud)</option><option>2 · İş akışı ve üretkenlik (Workspace)</option><option>3 · Veri ve entegrasyon</option></select>
+      <label for="aj_q4">Temsilci 300 sayfalık kampanya prosedürüne “bu müşteri uygun mu?” diye soruyor.</label>
+      <select id="aj_q4" data-key="ajan_q4"><option value="">Katman…</option><option>1 · Müşteri deneyimi (Google Cloud)</option><option>2 · İş akışı ve üretkenlik (Workspace)</option><option>3 · Veri ve entegrasyon</option></select>
+      <label for="aj_senaryo">Ekibimde ilk deneyeceğim ajan senaryosu <span class="hint">(katman · uygulama · kim tanımlar)</span></label>
+      <input type="text" id="aj_senaryo" data-key="ajan_senaryo" placeholder="örn. 2 · Gemini Gems · kalite ekibi — haftalık koçluk notu taslağı">
+      <div class="toolbar"><button class="btn" data-copy="ajanlar">Kopyala → sohbete yapıştır</button><span class="saved" id="sv_ajanlar">Kaydedildi</span></div>
+    </div>
+  </div>
+
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · Google ekosistemi</h4>
+    <ul>
+      <li><b>Amaç:</b> araç turu değil, harita. Gem'i az önce kurdular; “siz şu an 2. katmandasınız” cümlesiyle bağlayın. Blok 2'deki Görev Gem'i yine 2. katman; Blok 3'teki akışlarda “Ajan” etiketli adımlar çoğu zaman 1. ya da 3. katman ister ve BT ile birlikte kurulur.</li>
+      <li><b>Odaya tek soru:</b> “Sizin ekibinizde bugün kim ajan tanımlayabilir?” Beklenen ayrım: 1. katmanı BT/CX mimarları, 2. katmanı iş birimi (takım lideri, kalite, eğitim), 3. katmanı iş zekâsı ve süreç analistleri tanımlar.</li>
+      <li><b>Dikkat:</b> slayttaki “sıfır halüsinasyon” ifadesini sayfada “yüklenen dokümana dayanan, kaynak gösteren” diye yumuşattık. NotebookLM kaynakla sınırlı yanıt verir ama yanlış okuma ve eksik kaynak riski sürer; Çalıştır → Denetle → Düzelt burada da geçerli. Altın Kural: yüklenen dokümanda kişisel veri olmaz.</li>
+      <li><b>Kalite Koçu örneği:</b> “çağrı metni” Altın Kural'la çatışabilir; anonim/kurgusal metin ve kurumsal onaylı araç şartını hatırlatın. Çalışan değerlendirmesi yüksek riskli kullanım sayılır; nihai değerlendirme insanda.</li>
+    </ul>
+    <p style="margin:0"><b>Cevaplar:</b> 1 → 1. katman (Vertex AI + Dialogflow CX) · 2 → 2. katman (Workspace Studio) · 3 → 3. katman (BigQuery + Apps Script) · 4 → 2. katman (NotebookLM). Tartışmaya açık olan: 4 numara canlı çağrı içinde temsilci ekranında isteniyorsa 1. katman (Agent Assist) da doğru cevaptır — farkı “kim kurar, nerede çalışır” belirler.</p>
+  </div>
+
   <div class="break" style="margin-top:36px">
     <b>10:15 – 10:30</b>
     <div><p style="margin:0"><b>Ara.</b> 15 dakika (±5 dk sapabilir). Dönüşte Gem'iniz açık, grubunuz belli olsun.</p></div>
@@ -541,77 +686,124 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
 
 <!-- ============ FRONTELCO ============ -->
 <section id="frontelco"><div class="wrap">
-  <p class="kicker">10:55 · Mini-vaka · grup çalışması 20′ + paylaşım 20′</p>
-  <h2>Frontelco: iki dönüşüm, bir ölçüm sorunu — hangi gösterge?</h2>
-  <p class="small muted">Kaynak: Antal-Mokos, ESMT Berlin vakası (2022); bileşik vaka, isimler değiştirilmiş. Teknik: <b>10 Çoklu Perspektif</b> + <b>08 Kısıt Bazlı</b>.</p>
+  <p class="kicker">10:55 · Mini-vaka 2 · grup çalışması · 2′ mercek + 10′ Gem ve grup + 5′ paylaşım</p>
+  <h2>Frontelco: 3.500 kişilik teknik destek, iki dönüşüm, bir ölçüm sorunu</h2>
+  <p class="small muted">Kaynak: Antal-Mokos, “Digital and agile transformation at telecom call center”, ESMT–322–0195–1 (2022) · bileşik vaka, isimler değiştirilmiş. Teknikler: <b>10 Çoklu Perspektif</b> + <b>08 Kısıt Bazlı</b>.</p>
 
-  <div class="grid g2">
-    <div>
-      <h3>Vaka</h3>
-      <p>Frontelco, bir Avrupa telekom operatörünün <b>3.500 kişilik teknik destek</b> operasyonu; bir kısmı iç ekip, bir kısmı dış kaynak. Birkaç yıl içinde iki ayrı dönüşüm yaşadı.</p>
-      <p><b>2016–17 · Dijital dönüşüm.</b> Temsilcinin ekranına <b>akıllı senaryo</b> (adım adım yönlendiren sorular) ve <b>otomatik teşhis</b> (hat/cihaz testleri) geldi. Hedef açıktı: çağrıların %80'i ilk temasta çözülsün. Sonuç: ilk temasta çözüm oranı yükseldi, görüşme süresi sabit kaldı. Temsilci için iş daha öngörülebilir, ama daha “ekrana bağlı” hale geldi.</p>
-      <p><b>2018 · Çevik dönüşüm (TEX).</b> Yönetim, karmaşık sorunların senaryoya sığmadığını gördü: <b>uzman takımları</b> kuruldu, temsilciye senaryodan sapma ve <b>kendi takdirini kullanma</b> yetkisi verildi; takımlar sorunu uçtan uca sahiplendi. Sonuç: zor vakalar çözüldü, ama ortalama görüşme süresi arttı ve bekleyen çağrı kuyruğu uzadı. İki dönüşüm birbirini tamamlamak yerine ölçüm tablosunda çatıştı.</p>
-      <p><b>Barbara'nın verisi.</b> Operasyon yöneticisi Barbara, iç ekip ile dış kaynağı karşılaştırdığında şunu gördü: iç ekibin görüşme süresi dış kaynağın <b>iki katı</b>; ama iç ekibin çözüm oranı daha yüksek, tekrar çağrısı daha az. Yönetim raporları ortalama görüşme süresi (AHT) veriyor; ortalama, kuyruktaki <b>uzun bekleyen azınlığı</b> saklıyor. Yönetim süre ile çözüm arasında bölünmüş durumda: hız mı, çözüm mü?</p>
-      <p>Barbara'nın sorusu: <i>“Bu operasyonu tek bir göstergeyle yönetecek olsam, hangisi?”</i> — ve o göstergenin kime neyi göstereceğini, kime neyi saklayacağını bilmek istiyor.</p>
+  <div class="card" style="margin-bottom:16px">
+    <h3>Vaka kısaca</h3>
+    <p>Frontelco, bir Avrupa telekom operatörünün <b>3.500 kişilik teknik destek</b> operasyonu; bir kısmı iç ekip, bir kısmı dış kaynak. 2016–17'de yönetim <b>dijital dönüşüm</b> başlattı: hedef, sorunların %80'inin ilk çağrıda çözülmesiydi. Temsilcinin ekranına adım adım yönlendiren akıllı çağrı senaryosu ve otomatik teşhis geldi, çağrılar doğru uzmana yönlendirildi, 1. ve 2. seviye destek tek katta birleşti. Sonuç olumluydu: çözüm oranı yükseldi, görüşme süresi sabit kaldı.</p>
+    <p>Ama karmaşık, “uzun kuyruk” sorunlar senaryoya sığmıyordu. 2018'de genel müdür <b>çevik dönüşüm (TEX)</b> istedi: her beceriden bir uzmanın aynı masada oturduğu uzman takımları kuruldu, temsilciye zaman ve kendi takdirini kullanma yetkisi verildi. Bu kez çözüm oranı değişmedi, görüşme süresi arttı, bekleyen çağrı kuyruğu uzadı ve tavandaki “kurtarma ışığı” yanmaya başladı.</p>
+    <p>Operasyon yöneticisi <b>Barbara</b> verilere baktığında şunu gördü: iç ekibin görüşme süresi dış kaynağın iki katı, ama çözüm oranı daha yüksek ve tekrar çağrısı daha az. Raporlar ortalama verdiği için uzun bekleyen azınlık görünmüyordu. Yönetim ikiye bölünmüştü: dijitalciler süreyi (AHT), çevikler tekrar çağrıyı gösteriyordu. Barbara'nın sorusu basit: <i>bu operasyonu tek bir göstergeyle yönetecek olsam, hangisi — ve o gösterge neyi gösterip neyi saklar?</i></p>
+  </div>
+
+  <div class="grid g3">
+    <div class="card sky">
+      <span class="badge">2016–17 · Dijital dönüşüm</span>
+      <p style="margin-top:10px"><b>Hedef:</b> sorunların %80'i ilk çağrıda çözülsün. Akıllı çağrı senaryosu, otomatik teşhis, doğru uzmana yönlendirme; 1. ve 2. seviye tek katta birleşti, T-tipi çalışan.</p>
+      <p style="margin:0"><b>Sonuç:</b> çözüm oranı yükseldi, görüşme süresi sabit, maliyet beklentinin altında.</p>
     </div>
-    <div>
-      <h3>Görev — her grup kendi merceğinden</h3>
-      <p>Beş grup, beş mercek. Grubunuz vakaya yalnızca kendi merceğinden bakar ve <b>üç şey</b> üretir:</p>
-      <ol class="steps">
-        <li><span class="num">1</span><p><b>Tek gösterge:</b> adı + nasıl hesaplandığı (hangi veriden, hangi sıklıkta). Liste değil, tek gösterge.</p></li>
-        <li><span class="num">2</span><p><b>Görünür kılar / saklar:</b> bu gösterge sizin merceğinizdeki kişi için neyi görünür kılar, neyi saklar? Birer cümle.</p></li>
-        <li><span class="num">3</span><p><b>TEX cümlesi:</b> YZ asistanı “akıllı senaryo”nun yerine geçince uzman takımı hâlâ gerekli mi? Merceğinizden <b>koşullu tek cümle</b> (“Evet, ama yalnızca …”).</p></li>
-      </ol>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px">
-        <div class="lens l1"><b>Grup 1 · Müşteri</b><i>“İlk seferde çözülsün, beklemeyeyim”</i></div>
-        <div class="lens l2"><b>Grup 2 · Temsilci</b><i>“Çözmek için zaman mı, hız için baskı mı?”</i></div>
-        <div class="lens l3"><b>Grup 3 · Takım lideri</b><i>“Kuyruk ışığı yanınca ne yaparım?”</i></div>
-        <div class="lens l4"><b>Grup 4 · Kalite uzmanı</b><i>“Ortalama neyi saklıyor?”</i></div>
-        <div class="lens l5"><b>Grup 5 · Finans iş ortağı</b><i>“Dakika mı pahalı, tekrar çağrı mı?”</i></div>
-      </div>
-      <div class="timebox" style="margin-top:16px">
-        <div><b>3′</b><small>vakayı oku, merceği al</small></div><div><b>10′</b><small>Gem + grup tartışması</small></div><div><b>7′</b><small>kartı doldur</small></div><div class="dark"><b>4′/grup</b><small>paylaşım</small></div>
-      </div>
+    <div class="card sky">
+      <span class="badge c">2018 · Çevik dönüşüm (TEX)</span>
+      <p style="margin-top:10px">Genel müdür “uzman takımları” istedi: her beceriden bir uzman aynı masada, “uzun kuyruk” sorunlar için. Temsilciye zaman ve takdir verildi.</p>
+      <p style="margin:0"><b>Sonuç:</b> çözüm oranı değişmedi, görüşme süresi arttı, kuyruk uzadı; tavanda “kurtarma ışığı” yandı.</p>
+    </div>
+    <div class="card cream">
+      <span class="badge y">Barbara'nın verisi</span>
+      <p style="margin-top:10px">İç ekibin görüşme süresi dış kaynağın <b>2 katı</b>; ama çözüm oranı daha yüksek, tekrar çağrı daha az. Ortalama raporlar uzun kuyruğu saklıyor.</p>
+      <p style="margin:0">Dijitalciler süreyi (<b>AHT</b>), çevikler <b>tekrar çağrıyı</b> işaret ediyor.</p>
     </div>
   </div>
 
-  <div class="grid g2" style="margin-top:20px">
+  <div class="grid g2" style="margin-top:16px">
     <div class="card">
-      <h3>Gem'e verilecek prompt — [MERCEK] yerine kendi merceğinizi yazın</h3>
-<pre class="prompt" id="frontprompt"><b>Rol:</b> Bir telekom teknik destek operasyonunda performans ölçümü tasarlayan deneyimli bir analistsin; bu vakayı yalnızca <b>[MERCEK: müşteri / temsilci / takım lideri / kalite uzmanı / finans iş ortağı]</b> gözünden değerlendiriyorsun.
-<b>Bağlam:</b> Frontelco'da dijital dönüşüm (akıllı senaryo, otomatik teşhis) çözüm oranını artırdı, görüşme süresini sabit tuttu; çevik dönüşüm (uzman takımları, takdir) süreyi artırdı, kuyruğu uzattı. İç ekibin süresi dış kaynağın 2 katı ama çözümü yüksek, tekrar çağrısı az. Yönetim süre ile çözüm arasında bölünmüş; raporlar ortalama verdiği için uzun kuyruk görünmüyor.
-<b>Görev:</b> [MERCEK] için en çok anlam taşıyan tek performans göstergesini öner: adı, formülü, veri kaynağı, ölçüm sıklığı. Bu göstergenin neyi görünür kıldığını ve neyi sakladığını yaz. Ardından “YZ asistanı akıllı senaryonun yerine geçerse uzman takımı hâlâ gerekli mi?” sorusuna bu mercekten tek cümlelik, koşullu bir cevap ver.
-<b>Kurallar:</b> Yalnızca vakadaki bilgiyi kullan; vakada olmayan rakam uydurma, varsayımı “varsayım” diye işaretle. Tek gösterge öner, liste yapma. Diğer mercekleri savunma. Karar verme; gerekçeyi ver, kararı bize bırak. Türkçe, kısa, sahada kullanılır dil.
-<b>Format:</b> Gösterge (ad + formül + kaynak + sıklık, en fazla 40 kelime) · Görünür kılar / Saklar (iki madde) · TEX cevabı (1 cümle) · Denetlememiz gereken 2 nokta.</pre>
-      <div class="toolbar"><button class="btn y" data-copytext="frontprompt">Prompt'u kopyala</button></div>
-      <div class="card cream" style="margin-top:12px">
-        <h4>Denetle → Düzelt</h4>
-        <p class="small" style="margin:0">Çıktı “ortalama” temelli bir gösterge önerdiyse ikinci turda ekleyin: <i>“Ortalama kullanma; dağılımı ya da uzun kuyruğu gösteren bir ölçü seç.”</i> Vakada olmayan bir rakam gördüyseniz sildirin. Gem'in cevabı taslaktır; kartı grup yazar.</p>
+      <h3>Grup çalışmasında 5 farklı mercekten yanıtlayacağımız 3 ana soru</h3>
+      <ol class="steps">
+        <li><span class="num">1</span><p><b>[GÖSTERGE]</b> Barbara hangi tek göstergeyi önerirse iki taraf da kabul eder? <span class="muted">(Neyi görünür kılar, neyi saklar?)</span></p></li>
+        <li><span class="num c">2</span><p><b>[MİMARİ]</b> YZ asistanı 2017'deki “akıllı senaryo”nun yerine geçince uzman takımı (TEX) hâlâ gerekli mi?</p></li>
+        <li><span class="num y">3</span><p><b>[GERÇEK HAYAT]</b> Sizin masanızda bugün AHT mi kazanıyor, çözüm mü? Bunu kim kararlaştırdı?</p></li>
+      </ol>
+    </div>
+    <div class="card navy">
+      <h3>Vakadan ders</h3>
+      <p class="muted" style="margin:0">Dijital hızı, çevik muhakemeyi getirdi; ölçüm ikisini birbirine düşürdü. Değer formülünün <b style="color:#fff">çarpı işaretini</b> tasarlayan yoktu.</p>
+      <p style="font-family:'Fira Sans Condensed';font-size:1.25rem;margin:12px 0 0;color:#fff">Değer = YZ Hızı × İnsan Muhakemesi</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:30px">Frontelco'ya beş mercekten bakıyoruz: 3 soruya kendi rolümüzden yanıt</h3>
+  <p>Frontelco tek bir göstergeye sığmaya çalıştı; biz yukarıdaki 3 soruya beş farklı rolün merceğinden yanıt vereceğiz.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+    <div class="lens l1"><b>Grup 1 · Müşteri</b><i>“İlk seferde çözülsün, beklemeyeyim.”</i></div>
+    <div class="lens l2"><b>Grup 2 · Temsilci</b><i>“Çözmek için zaman mı, hız için baskı mı?”</i></div>
+    <div class="lens l3"><b>Grup 3 · Takım lideri</b><i>“Kuyruk ışığı yanınca ne yaparım?”</i></div>
+    <div class="lens l4"><b>Grup 4 · Kalite uzmanı</b><i>“Ortalama neyi saklıyor?”</i></div>
+    <div class="lens l5"><b>Grup 5 · Finans iş ortağı</b><i>“Dakika mı pahalı, tekrar çağrı mı?”</i></div>
+  </div>
+  <div class="timebox" style="margin-top:16px">
+    <div><b>2′</b><small>merceği al</small></div><div><b>10′</b><small>Gem ile · çoklu perspektif + grup</small></div><div class="dark"><b>5′</b><small>paylaşım</small></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:8px">
+    <div>
+      <div class="card sky">
+        <h4>Her grup, kendi merceğinden</h4>
+        <p class="small" style="margin:0 0 8px"><b>Soru 1 · Tek gösterge önerisi (Barbara'nın sorusu):</b> iki tarafın da kabul edeceği tek gösterge önerin (adı, formülü, ölçüm sıklığı). Bu gösterge neyi görünür kılar, neyi saklar?</p>
+        <p class="small" style="margin:0 0 8px"><b>Soru 2 · YZ asistanı sonrası TEX (mimari soru):</b> YZ asistanı 2017'deki “akıllı senaryo”nun yerine geçince uzman takımı (TEX) hâlâ gerekli mi? <i>Koşullu tek cümle.</i></p>
+        <p class="small" style="margin:0"><b>Soru 3 · Bizim masamız (gerçek hayat sorusu):</b> sizin masanızda bugün AHT mi, çözüm mü kazanıyor; bunu kim kararlaştırdı?</p>
       </div>
-      <div class="card sky" style="margin-top:12px">
-        <h4>İyi bir cevap neye benzer?</h4>
-        <p class="small" style="margin:0 0 6px"><b>Gösterge:</b> ad + formül. <i>“7 gün içinde tekrar aramayan çağrı oranı = aynı konuda 7 günde tekrar aranmayan çağrı / toplam çağrı; haftalık; iç–dış ayrı.”</i></p>
-        <p class="small" style="margin:0 0 6px"><b>Mercek etkisi:</b> bir görünür + bir gizli. <i>“Müşteri için ilk seferde çözümü görünür kılar; kuyruk süresini saklar.”</i></p>
-        <p class="small" style="margin:0"><b>TEX cümlesi:</b> evet/hayır + koşul. <i>“Evet, ama yalnızca YZ'nin ‘bilinmeyen’ etiketlediği çağrılar için.”</i></p>
+      <div class="card" style="margin-top:12px">
+        <h3>Gem ile · Çoklu Perspektif (10′)</h3>
+        <p class="small" style="margin:0 0 6px">Şablondaki 5 bileşenli prompt'ta yalnızca <b>[MERCEK]</b>'i kendi rolünüzle değiştirin.</p>
+<pre class="prompt" id="frontprompt"><b>Rol:</b> Bir telekom teknik destek operasyonunda performans ölçümü tasarlayan deneyimli bir analistsin; bu vakayı yalnızca <b>[MERCEK: müşteri / temsilci / takım lideri / kalite uzmanı / finans iş ortağı]</b> gözünden değerlendiriyorsun.
+<b>Bağlam:</b> Frontelco, 3.500 kişilik teknik destek operasyonu. 2016–17 dijital dönüşüm: hedef sorunların %80'inin ilk çağrıda çözülmesi; akıllı çağrı senaryosu, otomatik teşhis, doğru uzmana yönlendirme; 1. ve 2. seviye tek katta birleşti. Sonuç: çözüm oranı yükseldi, görüşme süresi sabit, maliyet beklentinin altında. 2018 çevik dönüşüm (TEX): uzun kuyruk sorunlar için her beceriden bir uzmanın aynı masada olduğu uzman takımları; temsilciye zaman ve takdir. Sonuç: çözüm oranı değişmedi, görüşme süresi arttı, kuyruk uzadı. Barbara'nın verisi: iç ekibin görüşme süresi dış kaynağın 2 katı ama çözüm oranı yüksek, tekrar çağrısı az; ortalama raporlar uzun kuyruğu saklıyor; dijitalciler AHT'yi, çevikler tekrar çağrıyı işaret ediyor.
+<b>Görev:</b> [MERCEK] gözünden üç soruya cevap ver. Soru 1 (Barbara'nın sorusu): iki tarafın da kabul edeceği tek göstergeyi öner — adı, formülü, ölçüm sıklığı; bu gösterge neyi görünür kılar, neyi saklar? Soru 2 (mimari): YZ asistanı 2017'deki “akıllı senaryo”nun yerine geçince uzman takımı (TEX) hâlâ gerekli mi? Koşullu tek cümle (“Evet, ama yalnızca …” / “Hayır, çünkü …”). Soru 3 (bizim masamız): bu mercekteki biri için bir çağrı merkezinde bugün AHT mi, çözüm mü kazanıyor ve bunu kim kararlaştırıyor — cevaplamak yerine grubun tartışması için 2 keskin soru yaz.
+<b>Kurallar:</b> Yalnızca vakadaki bilgiyi kullan; vakada olmayan rakam uydurma, varsayımı “varsayım” diye işaretle. Tek gösterge öner, liste yapma. Diğer mercekleri savunma. Karar verme; gerekçeyi ver, kararı bize bırak. Türkçe, kısa, sahada kullanılır dil.
+<b>Format:</b> Soru 1 · Gösterge (ad + formül + sıklık, en fazla 40 kelime) · Görünür kılar / Saklar (iki madde) · Soru 2 · TEX cevabı (1 cümle) · Soru 3 · tartışma için 2 soru · Denetlememiz gereken 2 nokta.</pre>
+        <div class="toolbar"><button class="btn y" data-copytext="frontprompt">Prompt'u kopyala</button></div>
+        <div class="card cream" style="margin-top:12px">
+          <h4>Denetle → Düzelt · ikinci tur</h4>
+          <p class="small" style="margin:0">Çıktı “ortalama” temelli bir gösterge önerirse ikinci turda şu kuralı ekleyin: <i>“Ortalama kullanma; dağılımı ya da uzun kuyruğu gösteren bir ölçü seç.”</i> Vakada olmayan bir rakam gördüyseniz sildirin. Gem'in cevabı taslaktır; kartı grup yazar.</p>
+        </div>
       </div>
     </div>
     <div>
-      <h3>Grup kartı <span class="small muted" style="font-family:'Fira Sans';font-weight:400">— grubunuzun yazıcısı doldurur, paylaşımda okur</span></h3>
+      <h3>Grup kartı <span class="small muted" style="font-family:'Fira Sans';font-weight:400">— grubunuzun yazıcısı doldurur, herkes görür, paylaşımda okunur</span></h3>
       <div class="gcard" id="gcard">
         <h4><span id="gc_title">Grubum</span><span class="mark">benim grubum</span></h4>
         <p class="small muted" id="gc_lens" style="margin:0 0 6px">Grubunuzu üst menüden seçin; merceğiniz burada görünür.</p>
-        <label for="f_gosterge">1 · Gösterge · ad + formül <span class="hint">(kaynak, sıklık)</span></label><textarea id="f_gosterge" data-key="front_gosterge" placeholder="Ad = … / … ; haftalık; iç–dış ayrı"></textarea>
-        <label for="f_gorunur">2 · Görünür kılar</label><input type="text" id="f_gorunur" data-key="front_gorunur" placeholder="Merceğimdeki kişi için neyi görünür kılar?">
-        <label for="f_saklar">2 · Saklar</label><input type="text" id="f_saklar" data-key="front_saklar" placeholder="Neyi saklar?">
-        <label for="f_tex">3 · TEX cümlesi <span class="hint">(evet/hayır + koşul)</span></label><input type="text" id="f_tex" data-key="front_tex" placeholder="Evet, ama yalnızca …">
+        <label for="f_gosterge">Soru 1 · Tek gösterge · ad + formül <span class="hint">(ölçüm sıklığı)</span></label><textarea id="f_gosterge" data-key="front_gosterge" placeholder="Ad = … / … ; haftalık; iç–dış ayrı"></textarea>
+        <label for="f_gorunur">Soru 1 · Görünür kılar</label><input type="text" id="f_gorunur" data-key="front_gorunur" placeholder="Merceğimdeki kişi için neyi görünür kılar?">
+        <label for="f_saklar">Soru 1 · Saklar</label><input type="text" id="f_saklar" data-key="front_saklar" placeholder="Neyi saklar?">
+        <label for="f_tex">Soru 2 · TEX cümlesi <span class="hint">(evet/hayır + koşul, tek cümle)</span></label><input type="text" id="f_tex" data-key="front_tex" placeholder="Evet, ama yalnızca …">
+        <label for="f_masa">Soru 3 · Bizim masamızda bugün ne kazanıyor? <span class="hint">(AHT mi, çözüm mü — bir örnekle)</span></label><input type="text" id="f_masa" data-key="front_masa" placeholder="örn. AHT — günlük panoda ilk satır o">
+        <label for="f_kim">Soru 3 · Bunu kim kararlaştırdı?</label><input type="text" id="f_kim" data-key="front_kim" placeholder="örn. Müşteri sözleşmesindeki SLA; biz hiç sormadık">
         <label for="f_denetim">Gem çıktısında düzelttiğimiz şey <span class="hint">(isteğe bağlı, tek satır)</span></label><input type="text" id="f_denetim" data-key="front_denetim" placeholder="Ortalama önerdi; dağılım ölçüsüne çevirdik">
         <div class="toolbar"><button class="btn" data-copy="frontelco">Kopyala → sohbete yapıştır</button><span class="saved" id="sv_frontelco">Kaydedildi</span></div>
       </div>
       <div class="card navy" style="margin-top:14px">
-        <h4>Paylaşımda · 4 dakika / grup</h4>
-        <p class="muted" style="margin:0">Yazıcı kartın üç satırını okur (gösterge · saklar · TEX cümlesi); 1 dakika soru. Eğitmen beş göstergeyi yan yana yazar: <b style="color:#fff">hangi iki gösterge birbirini tamamlar?</b> Frontelco'nun hatası tek göstergeye sığmaya çalışmaktı. Süre kalırsa tek soru odaya: <i>bizim masamızda bugün AHT mi kazanıyor, çözüm mü — bunu kim kararlaştırdı?</i></p>
+        <h4>Paylaşımda · 5′</h4>
+        <p class="muted" style="margin:0">Her grup yalnızca <b style="color:#fff">önerdiği göstergeyi</b> (Soru 1), <b style="color:#fff">neyi sakladığını</b> ve <b style="color:#fff">TEX kararını</b> (Soru 2) okur. Beş göstergeyi yan yana yazıp soracağız: <b style="color:#fff">hangi ikisi birbirini tamamlıyor?</b></p>
       </div>
     </div>
+  </div>
+
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · Frontelco · iyi bir cevap neye benzer?</h4>
+    <p style="margin:0 0 6px"><b>Gösterge:</b> ad + formül. <i>“7 gün içinde tekrar aramayan çağrı oranı = aynı konuda 7 günde tekrar aranmayan çağrı / toplam çağrı; haftalık; iç–dış ayrı.”</i> · <b>Mercek etkisi:</b> bir görünür + bir gizli. <i>“Müşteri için ilk seferde çözümü görünür kılar; kuyruk süresini saklar.”</i> · <b>TEX cümlesi:</b> evet/hayır + koşul. <i>“Evet, ama yalnızca YZ'nin ‘bilinmeyen’ etiketlediği çağrılar için.”</i></p>
+    <div class="tscroll"><table>
+      <tr><th>Mercek</th><th>Beklenen gösterge (örnek)</th><th>Görünür kılar / saklar</th><th>TEX cümlesi (örnek)</th></tr>
+      <tr><td><b>1 · Müşteri</b></td><td>7 günde tekrar aramadan çözülen çağrı oranı; haftalık</td><td>İlk seferde çözüm / bekleme ve kuyruk süresi</td><td>Evet, ama yalnızca YZ'nin “bilinmeyen” etiketlediği çağrılar için.</td></tr>
+      <tr><td><b>2 · Temsilci</b></td><td>Uzun kuyruk çağrılarında çözüm oranı (süresi en uzun %10'a giren çağrılarda çözülen / toplam); haftalık</td><td>Zor vakaya verilen zamanın karşılığı / kolay çağrıdaki gereksiz uzama</td><td>Evet, ama temsilcinin senaryodan sapma yetkisi korunursa.</td></tr>
+      <tr><td><b>3 · Takım lideri</b></td><td>Kuyrukta eşiği aşan çağrı oranı (≥ X dk bekleyen / gelen); saatlik</td><td>Anlık kapasite baskısı / çözüm kalitesi ve tekrar çağrı</td><td>Evet, ama ışık yandığında uzmanı kuyruğa kaydırma kuralı yazılırsa.</td></tr>
+      <tr><td><b>4 · Kalite uzmanı</b></td><td>Görüşme süresi dağılımı (medyan + 90. yüzdelik) × tekrar çağrı çapraz tablosu; haftalık</td><td>Ortalamanın sakladığı uzun kuyruk / yönetimin tek sayı okuma kolaylığı</td><td>Evet, YZ'nin yanlış teşhis örüntülerini yakalayıp senaryoyu düzeltecek biri gerekir.</td></tr>
+      <tr><td><b>5 · Finans</b></td><td>Çözülen ihtiyaç başına toplam maliyet = (dakika maliyeti + tekrar çağrı maliyeti) / çözülen ihtiyaç; aylık</td><td>Dakika ile tekrar çağrı arasındaki takas / müşteri bekleme deneyimi</td><td>Evet, uzman dakikası önlediği tekrar çağrıdan ucuz olduğu sürece.</td></tr>
+    </table></div>
+    <ul>
+      <li><b>Paylaşım sorusunun beklenen cevabı:</b> tek gösterge yoktur; bir <i>hız</i> ölçüsü (kuyruk/AHT dağılımı) ile bir <i>çözüm</i> ölçüsü (7 gün tekrar aramama) birbirini tamamlar. En sık doğal ikili: Grup 1 + Grup 4 ya da Grup 1 + Grup 3. Finans göstergesi ikisini tek sayıda birleştirme denemesidir — “neyi saklar?” diye sorun.</li>
+      <li><b>Tuzaklar:</b> “ortalama X” önerisi (ikinci tur kuralını hatırlatın) · liste halinde 3–4 gösterge (tek gösterge iste) · TEX'e koşulsuz “hayır, YZ yeter” (Soru 2'yi uzun kuyrukla bağlayın) · Soru 3'te kişi suçlama (“yönetim istiyor”) — “hangi sözleşme, hangi pano, hangi toplantı?” diye somutlaştırın.</li>
+      <li><b>Köprü cümlesi:</b> “Frontelco'nun hatası tek göstergeye sığmaya çalışmaktı; çarpı işaretini tasarlamak, iki ölçüyü birlikte okumaktır.” → Beş kas bölümüne geçiş.</li>
+    </ul>
   </div>
 </div></section>
 
@@ -652,7 +844,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
 <section id="ozet"><div class="wrap">
   <p class="kicker">11:45 · Blok 1 özeti · 15 dakika</p>
   <h2>Blok 1'de öğrendiklerimiz</h2>
-  <div class="grid g2">
+  <div class="grid g2" style="align-items:start">
     <div>
       <ol class="steps">
         <li><span class="num">1</span><p><b>Değer = YZ Hızı × İnsan Muhakemesi.</b> Hız herkeste aynı; farkı çıktıyı denetleyen, bağlamı bilen, sorumluluğu taşıyan taraf yaratır.</p></li>
@@ -666,19 +858,25 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
         <p class="small" style="margin:0">Bugün hangi işler zamanımı tüketiyor? Üç çalışma modu, 4D, dört kova; ilk devredilecek iş ve onun Görev Gem'i. 4. kas (iş akışı tasarımı) burada çalışmaya başlıyor.</p>
       </div>
     </div>
-    <div class="card">
-      <h3>Benim notum — 3 dakika</h3>
-      <label for="o_kas">12 ayda geliştirmeye başlayacağım kas</label>
-      <select id="o_kas" data-key="ozet_kas">
-        <option value="">Seçiniz</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option>
-      </select>
-      <label for="o_cumle">Kas cümlem <span class="hint">— “Bu değişime hazırlanmak için … kasımı … yaparak geliştireceğim.” İlk adım bu hafta yapılabilir olsun.</span></label>
-      <textarea id="o_cumle" data-key="ozet_cumle" placeholder="Bu değişime hazırlanmak için YZ okuryazarlığı kasımı, her gün Gem'imin bir çıktısını iki ölçütle denetleyerek geliştireceğim."></textarea>
-      <label for="o_ders">Blok 1'den cebime koyduğum tek cümle</label>
-      <input type="text" id="o_ders" data-key="ozet_ders" placeholder="örn. Ortalama saklar; dağılıma bak.">
-      <div class="toolbar"><button class="btn" data-copy="ozet">Kopyala → sohbete yapıştır</button><span class="saved" id="sv_ozet">Kaydedildi</span></div>
-      <p class="small muted" style="margin-top:12px">Kas kelimeleri kelime bulutuna gidecek; en çok seçilen kas, Blok 2'de hangi kovaya zaman açılacağını söyler.</p>
+    <div class="card cream">
+      <h3>Benim notum · 3 dakika</h3>
+      <p style="margin:0 0 8px">Gruptaki <b>her üye kendi satırını</b> doldurur: geliştirmeye başlayacağı kas, kas cümlesi ve Blok 1'den cebine koyduğu tek cümle. Grubunuzdaki herkes satırları görür.</p>
+      <p class="small" style="margin:0 0 8px"><b>Kas cümlesi kalıbı:</b> “Bu değişime hazırlanmak için … kasımı … yaparak geliştireceğim.” İlk adım bu hafta yapılabilir olsun.</p>
+      <p class="small muted" style="margin:0">Kas seçimleri kelime bulutuna gidecek; en çok seçilen kas, Blok 2'de hangi kovaya zaman açılacağını söyler.</p>
     </div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3><span class="gname">Grubum</span> · Blok 1 notlarımız</h3>
+    <div class="tscroll">
+    <table class="ws" style="min-width:720px">
+      <tr><th style="width:9%"></th><th style="width:22%">12 ayda geliştirmeye başlayacağım kas</th><th>Kas cümlem</th><th style="width:28%">Blok 1'den cebime koyduğum tek cümle</th></tr>
+      <tr><td><b>Üye 1</b></td><td><select data-key="ozet_kas1"><option value="">Kas…</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option></select></td><td><input type="text" data-key="ozet_cumle1" placeholder="… kasımı … yaparak geliştireceğim"></td><td><input type="text" data-key="ozet_ders1" placeholder="örn. Ortalama saklar; dağılıma bak."></td></tr>
+      <tr><td><b>Üye 2</b></td><td><select data-key="ozet_kas2"><option value="">Kas…</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option></select></td><td><input type="text" data-key="ozet_cumle2" placeholder="kas cümlesi"></td><td><input type="text" data-key="ozet_ders2" placeholder="tek cümle"></td></tr>
+      <tr><td><b>Üye 3</b></td><td><select data-key="ozet_kas3"><option value="">Kas…</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option></select></td><td><input type="text" data-key="ozet_cumle3" placeholder="kas cümlesi"></td><td><input type="text" data-key="ozet_ders3" placeholder="tek cümle"></td></tr>
+      <tr><td><b>Üye 4</b></td><td><select data-key="ozet_kas4"><option value="">Kas…</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option></select></td><td><input type="text" data-key="ozet_cumle4" placeholder="kas cümlesi"></td><td><input type="text" data-key="ozet_ders4" placeholder="tek cümle"></td></tr>
+      <tr><td><b>Üye 5</b></td><td><select data-key="ozet_kas5"><option value="">Kas…</option><option>1 · YZ okuryazarlığı</option><option>2 · Öğrenme çevikliği</option><option>3 · Daha geniş rol</option><option>4 · İş akışı tasarımı</option><option>5 · Sentez</option></select></td><td><input type="text" data-key="ozet_cumle5" placeholder="kas cümlesi"></td><td><input type="text" data-key="ozet_ders5" placeholder="tek cümle"></td></tr>
+    </table></div>
+    <div class="toolbar"><button class="btn" data-copy="ozet">Kopyala → sohbete yapıştır</button><span class="saved" id="sv_ozet">Kaydedildi</span></div>
   </div>
 </div></section>
 
@@ -899,8 +1097,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
       <table>
         <tr><th>Saat</th><th>Adım</th><th>Teknik</th></tr>
         <tr><td>14:30 · 12′</td><td>Anlatım: Beyaz Sayfa Sprinti · 7 israf – 7 fırsat · roller</td><td>—</td></tr>
-        <tr><td>14:42 · 10′</td><td><b>Adım 1</b> · Süreci ve israfı/fırsatı seç</td><td>06 5 Neden · 17 Ayrıştırma</td></tr>
-        <tr><td>14:52 · 25′</td><td><b>Adım 2</b> · Üç gözden üç akış → etki × efor → hikâye → israf cümlesi → SCAMPER fikri</td><td>10 Çoklu Perspektif · 08 Kısıt · 02 SCAMPER</td></tr>
+        <tr><td>14:42 · 10′</td><td><b>Menü</b> (kararsız ekipler için) → <b>Adım 1</b> · Süreci ve israfı/fırsatı seç</td><td>06 5 Neden · 17 Ayrıştırma</td></tr>
+        <tr><td>14:52 · 25′</td><td><b>Adım 2</b> · Üç gözden üç alternatif → etki × efor → SCAMPER fikri → ölçüt çifti</td><td>10 Çoklu Perspektif · 08 Kısıt · 02 SCAMPER</td></tr>
         <tr><td>15:17 · 20′</td><td><b>Adım 3</b> · Hipotez (30 sn pitch) → Pre-Mortem → güçlendirilmiş hipotez</td><td>18 Hikâye · 15 Pre-Mortem</td></tr>
         <tr><td>15:37 · 15′</td><td><b>Adım 4</b> · Görsel yönetici özeti (16:9)</td><td>18 Hikâye · 08 Kısıt · 09 Yansıtıcı</td></tr>
         <tr><td>15:52 · 8′</td><td>Tampon · prova</td><td>—</td></tr>
@@ -925,12 +1123,62 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
       </div>
       <div class="card" style="margin-top:12px">
         <h4>Sprint başlangıç istemi (Adım 0 · Gem'e yapıştırın)</h4>
-<pre class="prompt" id="a0prompt"><b>Bağlam:</b> Bugün bir çağrı merkezi sürecini beyaz sayfadan yeniden tasarlıyoruz; 4 adım: (1) süreç ve israf/fırsat, (2) üç alternatif akış ≤6 adım ve SCAMPER fikri, (3) hipotez ve pre-mortem, (4) görsel yönetici özeti.
+<pre class="prompt" id="a0prompt"><b>Bağlam:</b> Bugün bir çağrı merkezi sürecini beyaz sayfadan yeniden tasarlıyoruz; 4 adım: (1) süreç ve israf/fırsat, (2) müşteri, çalışan ve süreç sahibi gözünden üç alternatif akış ≤6 adım, etki × efor seçimi, SCAMPER fikri ve ölçüt çifti, (3) hipotez ve pre-mortem (risk, önlem, geliştirilmiş hipotez, durma kuralı), (4) görsel yönetici özeti.
 <b>Kurallar:</b> Bütün sprint boyunca: vakada olmayan rakam uydurma, varsayımı "varsayım" diye işaretle; gerçek müşteri, çağrı ve çalışan verisi isteme; yeni sistem satın almayı gerektiren adım önerme; karar verme, seçenek sun; Türkçe, kısa, sahada kullanılır dil. Her adımın sonunda "denetlemeniz gereken 2 nokta" yaz.
 <b>Başlangıç:</b> Hazırsan "Süreci ve mevcut akışı (en fazla 6 adım) yazın" de ve bekle.</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a0prompt">İstemi kopyala</button></div>
       </div>
     </div>
+  </div>
+</div></section>
+
+<!-- ============ MENÜ ============ -->
+<section id="menu"><div class="wrap">
+  <p class="kicker">Kararsız kalan ekipler için menü · kurulum dakikasında seçin</p>
+  <h2>Menü: beş israf, beş fırsat — birini alın, başlayın</h2>
+  <p class="lead">Kendi sürecinizi seçemiyorsanız bu on başlangıçtan birini alın. Hepsi kurgusaldır; başlangıç, bitiş ve kullanıcıyı siz netleştirin. <b>Satıra tıklayın:</b> seçiminiz grubunuzun kartına ve Adım 1'deki “Süreç” kutusuna yazılır.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>İsraf menüsü <span class="small muted" style="font-family:'Fira Sans';font-weight:400">(Lean)</span></h3>
+      <div class="tscroll"><table class="menu">
+      <tr><th>#</th><th>İsraf menüsü (Lean)</th><th>Süreç · kurgusal sorun</th><th>Sprintte denenecek küçük parça</th></tr>
+      <tr class="pick" data-pick="İ1 · Tekrar temas — Müşteri desteği · aynı ihtiyaçla ikinci arama; önceki işlem ve açık soru bir arada görünmüyor · küçük parça: Onaylı, kurgusal metinden çağrı sonrası vaka özeti"><td>İ1</td><td><b>Tekrar temas</b></td><td><b>Müşteri desteği</b> · aynı ihtiyaçla ikinci arama; önceki işlem ve açık soru bir arada görünmüyor</td><td>Onaylı, kurgusal metinden çağrı sonrası vaka özeti</td></tr>
+      <tr class="pick" data-pick="İ2 · Bekleme — Çalışan hizmetleri · vardiya değişim talebi onay kuyruğunda; kimin kararı belirsiz · küçük parça: Tamlık kontrolü + tek onaycı kuralı, insan onayı"><td>İ2</td><td><b>Bekleme</b></td><td><b>Çalışan hizmetleri</b> · vardiya değişim talebi onay kuyruğunda; kimin kararı belirsiz</td><td>Tamlık kontrolü + tek onaycı kuralı, insan onayı</td></tr>
+      <tr class="pick" data-pick="İ3 · Hata / yeniden iş — BT · erişim talebi; hedef sistem ve gerekçe eksik, tekrar yazışma · küçük parça: Eksik alanı soran talep ön-kontrolü; yetki kararı insanda"><td>İ3</td><td><b>Hata / yeniden iş</b></td><td><b>BT</b> · erişim talebi; hedef sistem ve gerekçe eksik, tekrar yazışma</td><td>Eksik alanı soran talep ön-kontrolü; yetki kararı insanda</td></tr>
+      <tr class="pick" data-pick="İ4 · Gereksiz aktarım — Finans / satın alma · fatura istisnası farklı kişilerce yeniden soruluyor · küçük parça: Eksik belge sorusunu tek taslakta birleştirme"><td>İ4</td><td><b>Gereksiz aktarım</b></td><td><b>Finans / satın alma</b> · fatura istisnası farklı kişilerce yeniden soruluyor</td><td>Eksik belge sorusunu tek taslakta birleştirme</td></tr>
+      <tr class="pick" data-pick="İ5 · Kullanılmayan yetkinlik — Kalite / eğitim · uzman notları uzun; gelişim odağı seçmek zor · küçük parça: Bir davranış için kanıtlı koçluk taslağı (uzman onaylar)"><td>İ5</td><td><b>Kullanılmayan yetkinlik</b></td><td><b>Kalite / eğitim</b> · uzman notları uzun; gelişim odağı seçmek zor</td><td>Bir davranış için kanıtlı koçluk taslağı (uzman onaylar)</td></tr>
+      </table></div>
+    </div>
+    <div class="card cream">
+      <h3>Fırsat menüsü <span class="small muted" style="font-family:'Fira Sans';font-weight:400">(Drucker)</span></h3>
+      <div class="tscroll"><table class="menu" style="background:#fff">
+      <tr><th>#</th><th>Fırsat menüsü (Drucker)</th><th>Global Bilgi için sinyal · kurgusal</th><th>Sprintte denenecek küçük parça</th></tr>
+      <tr class="pick" data-pick="F1 · Uyumsuzluk — Hızlı kapanan talebin yeniden açılması (çözüldü sanılan ihtiyaç) · küçük parça: Yanıtta çözülmemiş ihtiyacı işaretleyen kontrol"><td>F1</td><td><b>Uyumsuzluk</b></td><td>Hızlı kapanan talebin yeniden açılması (çözüldü sanılan ihtiyaç)</td><td>Yanıtta çözülmemiş ihtiyacı işaretleyen kontrol</td></tr>
+      <tr class="pick" data-pick="F2 · Süreç ihtiyacı — Ekip devrinde bağlamın kaybolması (1. → 2. seviye) · küçük parça: Standart devir özeti + eksik bilgi kontrolü"><td>F2</td><td><b>Süreç ihtiyacı</b></td><td>Ekip devrinde bağlamın kaybolması (1. → 2. seviye)</td><td>Standart devir özeti + eksik bilgi kontrolü</td></tr>
+      <tr class="pick" data-pick="F3 · Sektör / pazar değişimi — Kanal değiştirirken sürecin kopması (chat → telefon) · küçük parça: Kanallar arası ortak vaka özeti"><td>F3</td><td><b>Sektör / pazar değişimi</b></td><td>Kanal değiştirirken sürecin kopması (chat → telefon)</td><td>Kanallar arası ortak vaka özeti</td></tr>
+      <tr class="pick" data-pick="F4 · Algı değişimi — Müşteri ve çalışan görünür ilerleme bekliyor, bilet değil · küçük parça: Durum ve bir sonraki adımı açıklayan proaktif bildirim"><td>F4</td><td><b>Algı değişimi</b></td><td>Müşteri ve çalışan görünür ilerleme bekliyor, bilet değil</td><td>Durum ve bir sonraki adımı açıklayan proaktif bildirim</td></tr>
+      <tr class="pick" data-pick="F5 · Yeni bilgi — Dil modeliyle rol oynama, özetleme, taslak üretme artık mümkün · küçük parça: Onaylı bilgiye dayalı yanıt taslağı; temsilci onaylar"><td>F5</td><td><b>Yeni bilgi</b></td><td>Dil modeliyle rol oynama, özetleme, taslak üretme artık mümkün</td><td>Onaylı bilgiye dayalı yanıt taslağı; temsilci onaylar</td></tr>
+      </table></div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card sky">
+      <p style="margin:0"><b>Sınır:</b> tek talep türü, tek kullanıcı ihtiyacı, iki haftada gözlenebilir bir değişim. Menüden seçen ekip Adım 1'de yine mevcut akışı yazar.</p>
+    </div>
+    <div class="card">
+      <label for="a1_menu" style="margin-top:0">Menüden seçimimiz <span class="hint">(satıra tıklayın; kendi sürecinizle çalışıyorsanız boş bırakın)</span></label>
+      <input type="text" id="a1_menu" data-key="a1_menu" readonly placeholder="Henüz seçilmedi">
+      <div class="toolbar"><button class="btn ghost" type="button" id="menuClear">Seçimi kaldır</button><a class="btn" href="#adim1" style="text-decoration:none">Adım 1'e geç →</a></div>
+    </div>
+  </div>
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · menü</h4>
+    <ul>
+      <li>Kurulum dakikasında (14:42'den önce) 60 saniye içinde karar veremeyen gruba menüyü gösterin. İlk kez sprint yapan gruplar için en hızlı yol <b>İ2 (vardiya talebi)</b> ve <b>F2 (devir özeti)</b>: akış kısa, kullanıcı belli, iki haftada ölçülebilir.</li>
+      <li>Menüdeki “küçük parça” hazır cevap değil; Adım 2c'deki SCAMPER fikri için başlangıç noktasıdır. Gruplar parçayı aynen alıp Adım 2'yi atlamaya çalışırsa üç alternatifi yine ürettirin.</li>
+      <li>Aynı satırı iki grup seçerse sorun değil; galeride iki farklı akış karşılaştırması güçlü bir an olur. Yine de beş grubun beşi israf seçtiyse bir gruba fırsat (F4 ya da F5) önerin.</li>
+      <li>İç süreçlerde (İ2, İ3, İ4) “müşteri” gözü = süreçten hizmet alan iç kullanıcıdır (talep eden temsilci, talep sahibi birim). Adım 2a'da bunu hatırlatın.</li>
+    </ul>
   </div>
 </div></section>
 
@@ -941,9 +1189,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
   <div class="grid g2">
     <div>
       <p class="lead">Menüden bir süreç seçin ya da kendi sürecinizi yazın. Blok 2'de haritasını çıkardığınız süreç iyi bir adaydır — israfını zaten gördünüz. Mevcut akışı en fazla 6 adımla yazın; israfı ya da fırsatı <b>kişi değil süreç düzeyinde</b> tek cümleyle adlandırın.</p>
-      <div class="grid g2">
-        <div class="card sky"><h4>Menü · beş israf (kurgusal)</h4><p class="small" style="margin:0"><b>İ1</b> Tekrar temas — iade sonucunu göremeyen müşteri 7 günde yeniden arıyor · <b>İ2</b> Bekleme — vardiya değişim talebi onay kuyruğunda · <b>İ3</b> Hata / yeniden iş — BT erişim talebinde eksik alan · <b>İ4</b> Gereksiz aktarım — fatura istisnası üç birim dolaşıyor · <b>İ5</b> Kullanılmayan yetkinlik — koçluk notu yazılıyor, iletilmiyor</p></div>
-        <div class="card cream"><h4>Menü · beş fırsat (kurgusal)</h4><p class="small" style="margin:0"><b>F1</b> Uyumsuzluk — rapor "iyi" diyor, müşteri tekrar arıyor · <b>F2</b> Süreç ihtiyacı — vardiya devrinde özet yok · <b>F3</b> Kanal değişimi — müşteri yazılı kanala kayıyor · <b>F4</b> Algı değişimi — proaktif bildirim bekleniyor · <b>F5</b> Yeni bilgi — %100 çağrı analizi koçluğa çevrilebilir</p></div>
+      <div class="card cream">
+        <h4>Menüden mi seçtiniz?</h4>
+        <p class="small" style="margin:0">Seçiminiz: <b id="a1MenuShow">—</b> · <a href="#menu">menüye dön</a>. Menüden seçen ekip de mevcut akışı (≤6 adım) kendisi yazar; menüdeki “küçük parça”, Adım 2'deki SCAMPER fikrinin başlangıç noktasıdır.</p>
       </div>
       <div class="card" style="margin-top:12px">
         <h4>Gem'e · israfı adlandır (06 · 5 Neden)</h4>
@@ -967,44 +1215,57 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
 <!-- ============ ADIM 2 ============ -->
 <section id="adim2"><div class="wrap">
   <p class="kicker">14:52 · Adım 2 · 25 dakika · beyaz sayfa</p>
-  <h2>Adım 2 · Üç gözden üç akış, bir seçim, bir fikir</h2>
+  <h2>Adım 2 · Üç gözden üç alternatif, bir seçim, bir fikir, bir ölçüt çifti</h2>
   <div class="timebox">
-    <div><b>8′</b><small>üç alternatif akış (Gem)</small></div><div><b>5′</b><small>etki × efor → seç · hikâye</small></div><div><b>4′</b><small>fark → israf/fırsat cümlesi</small></div><div><b>8′</b><small>SCAMPER fikri (Gem) → seç</small></div>
+    <div><b>10′</b><small>üç alternatif (Gem)</small></div><div><b>4′</b><small>etki × efor → seç</small></div><div><b>6′</b><small>SCAMPER fikri (Gem)</small></div><div><b>5′</b><small>ölçüt çifti</small></div>
   </div>
   <div class="grid g2">
     <div>
       <ol class="steps">
-        <li><span class="num">2a</span><p><b>Üç akış, üç göz.</b> Gem'e mevcut akışı verin; <b>müşteri, çalışan ve süreç sahibi</b> gözünden üç alternatif akış üretsin — her biri ≤6 adım, her adım İnsan / YZ / Ajan etiketli. (10 Çoklu Perspektif · 08 Kısıt)</p></li>
-        <li><span class="num">2b</span><p><b>Etki × efor ile seçin.</b> Her akışa 1–5 etki, 1–5 efor; en yüksek etki/efor oranını seçin. Karar masaya ait, Gem puan önerir.</p></li>
-        <li><span class="num">2c</span><p><b>Hikâye:</b> seçilen akışta <b>kimin için ne değişti</b> — bir müşteri ya da çalışan anı, 3 cümle. Gerçek kişi yok, rol dili.</p></li>
-        <li><span class="num">2d</span><p><b>Fark → israf/fırsat cümlesi.</b> Seçilen akış ile mevcut akış arasındaki farka bakın: ortadan kalkan ya da açılan şey ne? Tek cümle. Adım 1'deki cümleyi keskinleştirin.</p></li>
-        <li><span class="num y">2e</span><p><b>SCAMPER fikri.</b> Bu israfı kaldırmak / fırsatı adreslemek için SCAMPER'ın üç sorusuyla (Eliminate · Combine · Substitute) 3 fikir; etki × efor ile birini seçin. Adım 3'ün hipotezi bu fikirden çıkar. (02 SCAMPER)</p></li>
+        <li><span class="num">2a</span><p><b>Üç göz, üç alternatif.</b> Gem'e mevcut akışı verin; <b>müşteri, çalışan ve süreç sahibi</b> gözünden birer alternatif akış üretsin — her biri ≤6 adım, her adım İnsan / YZ / Ajan etiketli. (10 Çoklu Perspektif · 08 Kısıt)</p></li>
+        <li><span class="num">2b</span><p><b>Etki × efor ile birini seçin.</b> Her alternatife 1–5 etki, 1–5 efor; yüksek etki, düşük efor olanı seçin. Gem puan önerir, karar masaya ait.</p></li>
+        <li><span class="num">2c</span><p><b>SCAMPER ile fikir.</b> Seçilen akışta israfı kaldıracak ya da fırsatı değerlendirecek <b>tek fikri</b> belirleyin: Gem SCAMPER'ın yedi sorusunu tarar, üç aday önerir; birini seçin. (02 SCAMPER)</p></li>
+        <li><span class="num y">2d</span><p><b>Ölçüt çifti.</b> Yeni akış için iki ölçüt: <b>sonuç ölçütü</b> (neyin iyileştiğini gösterir) + <b>denge ölçütü</b> (iyileşirken neyin bozulmadığını gösterir). Adım 3'teki hipotezin “sayı”sı bu çiftten gelir.</p></li>
       </ol>
       <div class="card" style="margin-top:12px">
-        <h4>Gem'e · 2a: üç gözden üç akış</h4>
+        <h4>Gem'e · 2a–2b: üç gözden üç alternatif</h4>
 <pre class="prompt" id="a2prompt"><b>Rol:</b> Çağrı merkezi süreçlerini yeniden tasarlayan bir hizmet tasarımcısısın.
-<b>Bağlam:</b> Süreç ve mevcut akış yukarıda (Adım 1). Kök neden: [kök neden cümlesi].
-<b>Görev:</b> Üç alternatif akış üret; her birini farklı bir gözden tasarla: (A) müşteri — "bekletilmeyeyim, tekrar anlatmayayım", (B) çalışan — "ekran değil, karar odaklı çalışayım", (C) süreç sahibi — "kuyruk ve hata azalsın, denetlenebilir olsun". Her akış en fazla 6 adım, her adım İnsan / YZ / Ajan etiketli, son adımda insana devretme koşulu. Her akış için etki (1–5) ve efor (1–5) tahmini + tek cümle gerekçe; "neyi kaybederiz" satırı.
+<b>Bağlam:</b> Süreç, mevcut akış ve israf/fırsat cümlesi yukarıda (Adım 1). Kök neden: [kök neden cümlesi].
+<b>Görev:</b> Mevcut akışı kopyalamadan, beyaz sayfadan üç alternatif akış üret; her birini farklı bir gözden tasarla: (A) Müşteri — “bekletilmeyeyim, tekrar anlatmayayım”, (B) Çalışan — “ekran değil, karar odaklı çalışayım”, (C) Süreç sahibi — “kuyruk ve hata azalsın, denetlenebilir olsun”. Her akış en fazla 6 adım; her adım İnsan / YZ / Ajan etiketli; son adımda insana devretme koşulu. Her alternatif için etki (1–5) ve efor (1–5) puanı öner, tek cümle gerekçe yaz.
 <b>Kurallar:</b> Yeni sistem satın alma yok. Müşteriyi bekleten adım yok. Rakam uydurma. Karar verme; seçimi biz yapacağız.
-<b>Format:</b> Üç tablo (adım · kim yapar · ne değişir) + etki/efor satırı + "kaybettiğimiz" notu + denetlenecek 2 nokta.</pre>
+<b>Format:</b> Üç tablo (adım · kim yapar · ne değişir) + her birinin altında “etki · efor · gerekçe” satırı + sonda A/B/C etki × efor özeti + denetlememiz gereken 2 nokta.</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a2prompt">İstemi kopyala</button></div>
-        <h4 style="margin-top:14px">Gem'e · 2e: SCAMPER fikri</h4>
-<pre class="prompt" id="a2sprompt"><b>Bağlam:</b> Seçtiğimiz akış: [A/B/C]. İsraf/fırsat cümlesi: [2d cümlesi].
-<b>Görev:</b> Bu israfı kaldırmak / fırsatı adreslemek için üç SCAMPER sorusuyla üç fikir üret: Eliminate (hangi adım tamamen kalkar?), Combine (hangi iki adım tek adım olur?), Substitute (hangi adımı YZ ya da ajan üstlenir?). Her fikir için etki (1–5), efor (1–5), "kalite riski" tek satır.
-<b>Kurallar:</b> Çalışan izleme göstergesi önerme; kalite standardını düşüren "eliminate" önerisini işaretle. Rakam uydurma. Sıralama yapma, seçim bizde.
-<b>Format:</b> Üç satırlık tablo (soru · fikir · etki · efor · kalite riski).</pre>
+        <h4 style="margin-top:14px">Gem'e · 2c–2d: SCAMPER fikri ve ölçüt çifti</h4>
+<pre class="prompt" id="a2sprompt"><b>Bağlam:</b> Seçtiğimiz alternatif: [A / B / C] · Yeni akış: [≤6 adım] · İsraf/fırsat cümlesi: [Adım 1].
+<b>Görev:</b> (1) SCAMPER'ın yedi sorusunu (Substitute · Combine · Adapt · Modify · Put to other use · Eliminate · Reverse) bu akışa uygula; israfı kaldıracak ya da fırsatı değerlendirecek en güçlü 3 fikri öner; her fikir için SCAMPER harfi, etki (1–5), efor (1–5) ve “kalite riski” tek satır. (2) Yeni akış için bir ölçüt çifti öner: sonuç ölçütü (ad, formül, veri kaynağı, iki haftalık pilotta beklenen yön) ve denge ölçütü (iyileşirken bozulmaması gereken şey ve eşiği).
+<b>Kurallar:</b> Bugünkü değeri bilmiyorsan “[?] ölçülecek” yaz, rakam uydurma. Bireysel çalışan izleme göstergesi önerme; ortalama yerine oran ya da dağılım tercih et. Kalite standardını düşüren “Eliminate” önerisini işaretle. Sıralama yapma; seçim bizde.
+<b>Format:</b> Üç satırlık fikir tablosu (harf · fikir · etki · efor · kalite riski) + ölçüt çifti (iki satır: ad · formül · kaynak · hedef/eşik) + denetlememiz gereken 2 nokta.</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a2sprompt">İstemi kopyala</button></div>
       </div>
     </div>
     <div class="card">
       <h3><span class="gname">Grubum</span> · Kart alanları 2–4</h3>
-      <label for="a2_secim">Seçilen akış <span class="hint">(A müşteri / B çalışan / C süreç sahibi · etki × efor)</span></label><input type="text" id="a2_secim" data-key="a2_secim" placeholder="örn. B · etki 4 / efor 2">
-      <label for="a2_akis">Yeni akış <span class="hint">(≤6 adım · İnsan / YZ / Ajan · insana devretme koşulu)</span></label><textarea id="a2_akis" data-key="a2_akis" placeholder="1 (Ajan) Talep formu tamlık kontrolü → 2 (YZ) eksik alanı temsilciye sorar → 3 (İnsan) Lider tek adımda onaylar → …"></textarea>
-      <label for="a2_hikaye">Kimin için ne değişti — hikâye <span class="hint">(3 cümle, rol dili)</span></label><textarea id="a2_hikaye" data-key="a2_hikaye" placeholder="Gece vardiyasındaki temsilci talebini girdiğinde…"></textarea>
-      <label for="a2_israf">Fark → israf / fırsat cümlesi <span class="hint">(tek cümle)</span></label><input type="text" id="a2_israf" data-key="a2_israf" placeholder="Eksik talep kuyrukta 3 gün bekliyor; yeni akışta kuyruğa hiç girmiyor">
-      <label for="a2_fikir">Seçilen SCAMPER fikri <span class="hint">(soru · fikir · etki × efor)</span></label><input type="text" id="a2_fikir" data-key="a2_fikir" placeholder="örn. Substitute · tamlık kontrolünü ajan yapar · 4 / 2">
+      <label for="a2_secim">Seçilen alternatif <span class="hint">(A müşteri / B çalışan / C süreç sahibi · etki × efor)</span></label><input type="text" id="a2_secim" data-key="a2_secim" placeholder="örn. B çalışan · etki 4 / efor 2">
+      <label for="a2_akis">Yeni akış <span class="hint">(≤6 adım · İnsan / YZ / Ajan · insana devretme koşulu)</span></label><textarea id="a2_akis" data-key="a2_akis" placeholder="1 (İnsan) Temsilci talebi tek formdan girer → 2 (YZ) tamlık kontrolü, eksik alanı sorar → 3 (İnsan) Lider tek adımda onaylar → …"></textarea>
+      <label for="a2_fikir">SCAMPER fikri <span class="hint">(harf · fikir · israfı nasıl kaldırır / fırsatı nasıl kullanır)</span></label><textarea id="a2_fikir" data-key="a2_fikir" placeholder="örn. Substitute · tamlık kontrolünü YZ yapar; eksik talep kuyruğa hiç girmez"></textarea>
+      <label for="a2_sonuc">Ölçüt çifti · sonuç ölçütü <span class="hint">(ad · formül · bugün [?] → hedef · 2 hafta)</span></label><input type="text" id="a2_sonuc" data-key="a2_sonuc" placeholder="örn. Talep–cevap süresi (talepten onay bildirimine) · 3 gün → 1 gün">
+      <label for="a2_denge">Ölçüt çifti · denge ölçütü <span class="hint">(bozulmaması gereken · eşik)</span></label><input type="text" id="a2_denge" data-key="a2_denge" placeholder="örn. Yanlış onay oranı (planla çakışan onay / toplam onay) artmaz">
       <div class="toolbar"><button class="btn" data-copy="a2">Kopyala</button><span class="saved" id="sv_a2">Kaydedildi</span></div>
     </div>
+  </div>
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · Adım 2 · örnek cevap (İ2 · vardiya değişim talebi, kurgusal)</h4>
+    <div class="tscroll"><table>
+      <tr><th>Alternatif</th><th>Akış (özet)</th><th>Etki / efor</th></tr>
+      <tr><td><b>A · Müşteri</b> <span class="mini">(talep eden temsilci)</span></td><td>(İnsan) tek formdan talep → (YZ) eksik alanı anında sorar → (Ajan) uygun takas adaylarını listeler → (İnsan) lider onaylar → (Ajan) plana işler, iki tarafa bildirir</td><td>5 / 4</td></tr>
+      <tr><td><b>B · Çalışan</b> <span class="mini">(takım lideri)</span></td><td>(İnsan) form → (YZ) tamlık + kural uygunluğu özeti → (İnsan) lider tek ekranda onay/ret → (Ajan) bildirim</td><td>4 / 2 → <b>seçilir</b></td></tr>
+      <tr><td><b>C · Süreç sahibi</b> <span class="mini">(WFM)</span></td><td>(Ajan) kural kontrolü → (İnsan) istisna onayı → (YZ) haftalık denetim özeti</td><td>3 / 3</td></tr>
+    </table></div>
+    <p style="margin:6px 0"><b>SCAMPER fikri:</b> Substitute — tamlık kontrolünü YZ yapar, eksik talep kuyruğa girmez (alternatifler: Eliminate — e-posta + WhatsApp zinciri kalkar; Combine — kontrol ve onay tek ekranda). <b>Ölçüt çifti:</b> sonuç — talep–cevap süresi (medyan ve en uzun %10) 3 günden 1 güne; denge — yanlış onay oranı artmaz.</p>
+    <ul>
+      <li><b>Tuzaklar:</b> üç alternatif birbirinin kopyası çıkarsa “her göz farklı bir adımı silsin” dedirin · etki/efor'u Gem'in puanıyla kabul etmesinler, masada en az bir puanı değiştirsinler · ölçüt çifti iki “sonuç” ölçütü olursa (ikisi de hız) denge ölçütünü “neyi bozabiliriz?” sorusuyla buldurun · ortalama süre yerine medyan ya da en uzun %10.</li>
+      <li><b>Zaman:</b> 14 dakikada seçim yapılmadıysa 2b'yi kapatın, en yüksek etki/efor oranını seçtirin; SCAMPER'a en az 6 dakika kalsın.</li>
+    </ul>
   </div>
 </div></section>
 
@@ -1019,9 +1280,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
     <div>
       <p class="lead">Seçtiğiniz fikri üç bileşenli tek cümleye indirin — ölçülebilir ve savunulabilir. Bu cümle, yöneticinizle asansörde 30 saniyede söyleyeceğiniz şeydir.</p>
       <div class="grid g3" style="gap:10px">
-        <div class="lens l5"><b>Gerilim · Problem</b><i>Karşı karşıya olduğumuz israf / fırsat ne? (Adım 1–2 cümlesi)</i></div>
-        <div class="lens" style="background:#E0A000"><b>Çözüm · Mikro-bahis</b><i>YZ ne üretir, insan neyi doğrular? (seçilen fikir)</i></div>
-        <div class="lens l1"><b>Sayı · Etki</b><i>Hangi ölçüt, hangi eşik, hangi sürede? (sonuç + denge ölçütü)</i></div>
+        <div class="lens l5"><b>Gerilim · Problem</b><i>Karşı karşıya olduğumuz israf / fırsat ne? (Adım 1 cümlesi)</i></div>
+        <div class="lens" style="background:#E0A000"><b>Çözüm · Mikro-bahis</b><i>YZ ne üretir, insan neyi doğrular? (2c SCAMPER fikri)</i></div>
+        <div class="lens l1"><b>Sayı · Etki</b><i>Hangi ölçüt, hangi eşik, hangi sürede? (2d ölçüt çifti)</i></div>
       </div>
       <div class="card cream" style="margin-top:12px">
         <p class="small" style="margin:0 0 6px"><b>Kalıp:</b> "Eğer X'i YZ ile yaparsak ve Y'yi insan doğrularsa, Z olur." — Z'nin sayısı ve süresi yoksa cümle hipotez değil, dilektir.</p>
@@ -1029,28 +1290,42 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
       </div>
       <div class="card" style="margin-top:12px">
         <h4>Gem'e · hipotez taslağı</h4>
-<pre class="prompt" id="a3prompt"><b>Bağlam:</b> İsraf/fırsat cümlesi: [2d]. Seçilen fikir: [2e]. Yeni akış: [2b].
-<b>Görev:</b> Üç bileşenli tek cümlelik hipotez yaz: gerilim (kim, ne zaman, ne kaybediyor) · çözüm (YZ ne üretir, insan neyi doğrular) · sayı (sonuç ölçütü + denge ölçütü + süre, 2 haftalık pilot). İki alternatif ver: biri sayıyı sonuçtan, diğeri süreden kuran.
+<pre class="prompt" id="a3prompt"><b>Bağlam:</b> İsraf/fırsat cümlesi: [Adım 1]. Yeni akış: [2b]. SCAMPER fikri: [2c]. Ölçüt çifti: [2d sonuç + denge].
+<b>Görev:</b> Üç bileşenli tek cümlelik hipotez yaz: gerilim (kim, ne zaman, ne kaybediyor) · çözüm (YZ ne üretir, insan neyi doğrular) · sayı (ölçüt çiftindeki sonuç ölçütü + denge ölçütü + süre, 2 haftalık pilot). İki alternatif ver: biri sayıyı sonuçtan, diğeri süreden kuran.
 <b>Kurallar:</b> Vakada olmayan rakamı "[?] ölçülecek" diye yaz, uydurma. "Memnuniyet artar" gibi genel ifade yok. En fazla 45 kelime.
 <b>Format:</b> İki cümle + her biri için "bu sayı nereden ölçülür" tek satır.</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a3prompt">İstemi kopyala</button></div>
         <h4 style="margin-top:14px">Gem'e · Pre-Mortem (15) · hipotezi güçlendir</h4>
 <pre class="prompt" id="a3pprompt"><b>Rol:</b> Başarısız olmuş bir pilotu inceleyen bağımsız bir denetçisin; bugün pilotun 14. günü ve pilot iptal edildi.
-<b>Bağlam:</b> Hipotezimiz: [hipotez cümlesi]. Yeni akış: [2b].
-<b>Görev:</b> Pilotun neden iptal edildiğini anlatan 3 olası neden yaz; her neden için "ilk hangi günde belirti verdi", "kim neyi kaybettiği için sessiz kaldı" ve "bugün alınabilecek önlem" satırlarını doldur. Sonra hipotez cümlesini, en güçlü önlemi içerecek şekilde yeniden yaz (en fazla 50 kelime).
-<b>Kurallar:</b> Nedenler kişi değil süreç/yetki/veri/KVKK düzeyinde; "ekip istemedi" yazma, neyi kaybettiğini yaz; rakam uydurma. Sıralama yapma, oylamayı masa yapacak.
-<b>Format:</b> Üç satırlık tablo + yeniden yazılmış hipotez + "en büyük belirsizlik" tek cümle (Şüpheci için).</pre>
+<b>Bağlam:</b> Hipotezimiz (v1): [hipotez cümlesi]. Yeni akış: [2b]. SCAMPER fikri: [2c]. Ölçüt çifti: [2d sonuç + denge].
+<b>Görev:</b> (1) Pilotun neden iptal edildiğini anlatan 3 olası neden yaz; her biri için “ilk hangi günde belirti verdi” ve “kim neyi kaybettiği için sessiz kaldı”. (2) Bu üçünden <b>en büyük riski</b> öner ve neden en büyük olduğunu tek cümleyle gerekçelendir; seçimi masa onaylayacak. (3) Bu riske karşı bugün alınabilecek <b>önlemi</b> yaz: kim, ne yapar, pilotun hangi gününde. (4) Hipotez cümlesini önlemi içerecek şekilde yeniden yaz: <b>geliştirilmiş hipotez</b>, en fazla 50 kelime. (5) Hipotezin <b>durma kuralını</b> yaz: hangi ölçüt, hangi eşik, pilotun hangi gününde görülürse pilot durur ve eski akışa dönülür (denge ölçütünü kullan). (6) <b>Şüpheci notu:</b> hipotezde hâlâ kanıtsız duran en büyük varsayım ve ilk hafta nasıl kontrol edileceği, tek cümle.
+<b>Kurallar:</b> Nedenler kişi değil süreç/yetki/veri/KVKK düzeyinde; “ekip istemedi” yazma, neyi kaybettiğini yaz. Rakam uydurma; bilinmeyen eşiği “[?] ölçülecek” diye yaz. Önlem yeni sistem satın almak olmasın.
+<b>Format:</b> Üç satırlık tablo (neden · ilk belirti günü · kim ne kaybetti) + beş etiketli satır: En büyük risk · Önlem · Geliştirilmiş hipotez · Durma kuralı · Şüpheci notu.</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a3pprompt">İstemi kopyala</button></div>
       </div>
     </div>
     <div class="card">
       <h3><span class="gname">Grubum</span> · Kart alanları 5–6</h3>
       <label for="a3_hipotez">Hipotez v1 <span class="hint">(gerilim · çözüm · sayı)</span></label><textarea id="a3_hipotez" data-key="a3_hipotez" placeholder="… için … olduğu için …; YZ … , insan … ; 2 haftalık pilotta … , … artmaz."></textarea>
-      <label for="a3_risk">Pre-Mortem · en büyük risk ve önlemi <span class="hint">(masada seçilen)</span></label><textarea id="a3_risk" data-key="a3_risk" placeholder="Risk: … · İlk belirti: … gün · Kim ne kaybediyor: … · Önlem: …"></textarea>
-      <label for="a3_hipotez2">Hipotez v2 — 30 saniyelik pitch <span class="hint">(önlemi içerir; galeride bu okunur)</span></label><textarea id="a3_hipotez2" data-key="a3_hipotez2"></textarea>
-      <label for="a3_belirsiz">Şüpheci'nin notu · en büyük belirsizlik <span class="hint">(tek cümle)</span></label><input type="text" id="a3_belirsiz" data-key="a3_belirsiz" placeholder="örn. Eksik alan oranını bugün ölçmüyoruz; ilk hafta sayılacak">
+      <p class="small muted" style="margin:14px 0 0"><b>Pre-Mortem sonuçları</b> — Gem önerir, masa seçer, yazıcı yazar.</p>
+      <label for="a3_risk">En büyük risk <span class="hint">(masada seçilen · ilk belirti günü · kim ne kaybediyor)</span></label><textarea id="a3_risk" data-key="a3_risk" placeholder="Risk: … · İlk belirti: …. gün · Kim ne kaybediyor: …"></textarea>
+      <label for="a3_onlem">Önlemi <span class="hint">(kim · ne yapar · pilotun hangi gününde)</span></label><input type="text" id="a3_onlem" data-key="a3_onlem" placeholder="örn. Lider 1. gün tek kanal kuralını duyurur; kontrol yalnızca 3 zorunlu alanı sorar">
+      <label for="a3_hipotez2">Geliştirilmiş hipotez cümlesi <span class="hint">(önlemi içerir · 30 sn pitch; galeride bu okunur)</span></label><textarea id="a3_hipotez2" data-key="a3_hipotez2" placeholder="… ; YZ … , insan … ve [önlem] ; 2 haftalık pilotta … , … artmaz."></textarea>
+      <label for="a3_durma">Hipotezin durma kuralı <span class="hint">(hangi ölçüt · hangi eşik · hangi gün → dur, eski akışa dön)</span></label><input type="text" id="a3_durma" data-key="a3_durma" placeholder="örn. 7. günde yanlış onay oranı başlangıcın üstündeyse pilot durur">
+      <label for="a3_belirsiz">Şüpheci notu <span class="hint">(kanıtsız en büyük varsayım · ilk hafta nasıl kontrol)</span></label><input type="text" id="a3_belirsiz" data-key="a3_belirsiz" placeholder="örn. Eksik alan oranını bugün ölçmüyoruz; ilk 3 gün elle sayılacak">
       <div class="toolbar"><button class="btn" data-copy="a3">Kopyala</button><span class="saved" id="sv_a3">Kaydedildi</span></div>
     </div>
+  </div>
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · Adım 3 · örnek Pre-Mortem çıktısı (İ2, kurgusal)</h4>
+    <ul>
+      <li><b>En büyük risk:</b> tamlık kontrolü fazla katı kurulur; temsilciler soru yağmurundan bıkıp talebi yine e-posta / WhatsApp'tan iletir (gölge kanal). İlk belirti: 3. gün. Kim ne kaybediyor: lider kontrolü, temsilci hızı.</li>
+      <li><b>Önlem:</b> takım lideri 1. gün “talep yalnızca bu formdan” kuralını duyurur; kontrol yalnızca 3 zorunlu alanı sorar; lider 3. gün gölge kanal taleplerini sayar.</li>
+      <li><b>Geliştirilmiş hipotez:</b> “Vardiya değişim talebi onay kuyruğunda kaldığı için temsilci 3 günde cevap alamıyor; YZ yalnızca 3 zorunlu alanı kontrol edip eksikleri sorar, takım lideri tek adımda onaylar ve talepler yalnızca bu formdan alınır; 2 haftalık pilotta cevap süresi 3 günden 1 güne iner, yanlış onay oranı artmaz.”</li>
+      <li><b>Durma kuralı:</b> “Pilotun 7. gününde yanlış onay oranı başlangıç değerinin üstündeyse ya da taleplerin [?]'i hâlâ gölge kanaldan geliyorsa pilot durur, eski akışa dönülür.”</li>
+      <li><b>Şüpheci notu:</b> “Bugün eksik alan oranını ve gerçek cevap süresini ölçmüyoruz; ilk 3 gün elle sayılacak.”</li>
+    </ul>
+    <p style="margin:0"><b>Kontrol listesi:</b> önlem hipotez cümlesinde görünüyor mu? · durma kuralında ölçüt + eşik + gün var mı? (“kötü giderse dururuz” kural değildir) · durma kuralı denge ölçütüne mi bağlı? · şüpheci notu bir varsayımı ve onu kontrol yolunu söylüyor mu? · risk kişi değil süreç düzeyinde mi?</p>
   </div>
 </div></section>
 
@@ -1065,7 +1340,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
     <div>
       <p class="lead">Galeride yalnızca bu görsel açılır: 3–5 dakikada, üç adımda yaptığınız süreç iyileştirmesini (israfı kaldırma / fırsatı adresleme) yöneticinize anlatacaksınız. Kart kanıt olarak bu sayfada durur; soru gelirse açılır. Galeri görsele değil, <b>karara</b> odaklanır.</p>
       <ol class="steps">
-        <li><span class="num">1</span><p><b>Yapıştır:</b> Beyaz Sayfa Kartı'nın 1–6 alanlarını ve Hipotez v2'yi aynı Gemini sohbetine yapıştırın (aşağıdaki "Kartı kopyala").</p></li>
+        <li><span class="num">1</span><p><b>Yapıştır:</b> Beyaz Sayfa Kartı'nın 1–6 alanlarını ve geliştirilmiş hipotezi aynı Gemini sohbetine yapıştırın (aşağıdaki "Kartı kopyala").</p></li>
         <li><span class="num">2</span><p><b>Üret:</b> sağdaki istemle 16:9 görsel; başlık ≤8 kelime. Görsel üretimi kapalıysa Canvas'ta 5 bloklu tek sayfa.</p></li>
         <li><span class="num">3</span><p><b>Denetle:</b> Şüpheci — kartta olmayan rakam, vaat ya da süre var mı? Sil, yeniden üret. "[?]" alanları "ölçülecek" kalsın.</p></li>
         <li><span class="num y">4</span><p><b>Prova:</b> sözcü görselin üstünden 3 dakikalık anlatımı dener: israf → yeni akış ve fikir → hipotez → deney → istenen karar.</p></li>
@@ -1075,9 +1350,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:.85rem;border-top:1px so
     <div>
       <div class="card">
         <h3>Gemini'ye kopyalayın · görsel yönetici özeti</h3>
-<pre class="prompt" id="a4prompt">Aşağıdaki Beyaz Sayfa Kartı'ndan ve hipotez cümlesinden, yöneticiye 3 dakikada anlatılacak 16:9 tek ekranlık görsel bir yönetici özeti tasarla. Beş blok: 1) Problem — süreç, israf/fırsat cümlesi (kim, ne zaman, ne kaybediyor; tek cümle + bir sayı); 2) Eski → yeni akış — en fazla 6 kutu, YZ/ajan adımları farklı renkte, insan onay noktası işaretli; seçilen SCAMPER fikri tek satır; 3) Hipotez — üç bileşenli tek cümle (gerilim · çözüm · sayı); 4) İki haftalık deney — kapsam, sahip, sonuç ölçütü, denge ölçütü, en büyük risk ve önlemi; 5) Yöneticiden istediğimiz tek karar.
+<pre class="prompt" id="a4prompt">Aşağıdaki Beyaz Sayfa Kartı'ndan ve hipotez cümlesinden, yöneticiye 3 dakikada anlatılacak 16:9 tek ekranlık görsel bir yönetici özeti tasarla. Beş blok: 1) Problem — süreç, israf/fırsat cümlesi (kim, ne zaman, ne kaybediyor; tek cümle + bir sayı); 2) Eski → yeni akış — en fazla 6 kutu, YZ/ajan adımları farklı renkte, insan onay noktası işaretli; seçilen SCAMPER fikri tek satır; 3) Hipotez — üç bileşenli tek cümle (gerilim · çözüm · sayı); 4) İki haftalık deney — kapsam, sahip, sonuç ölçütü, denge ölçütü, en büyük risk ve önlemi, durma kuralı; 5) Yöneticiden istediğimiz tek karar.
 KISITLAR: kartta olmayan rakam, vaat ya da süre ekleme; belirsiz alanları "ölçülecek" yaz; başlık en fazla 8 kelime; Global Bilgi iç sunum tonu, pazarlama dili yok; gerçek müşteri ya da çalışan verisi yok; beyaz zemin, lacivert–mavi–sarı. Önce 16:9 görseli üret, sonra aynı içeriği 5 başlık altında metin olarak ver.
-KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
+KART: [yapıştırın] · GELİŞTİRİLMİŞ HİPOTEZ: [yapıştırın]</pre>
         <div class="toolbar"><button class="btn y" data-copytext="a4prompt">İstemi kopyala</button><button class="btn ghost" data-copy="kart">Kartı kopyala (alan 1–6)</button></div>
       </div>
       <div class="card" style="margin-top:12px">
@@ -1093,15 +1368,15 @@ KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
     <h3>Beyaz Sayfa Kartı · yedi alan, dört adım</h3>
     <table>
       <tr><th style="width:26%">Alan</th><th>Ekibimizin tasarımı</th><th style="width:10%">Adım</th></tr>
-      <tr><td><b>1 · Süreç ve israf / fırsat</b></td><td>Süreç · mevcut akış ≤6 adım · israf/fırsat cümlesi · kök neden</td><td>1</td></tr>
-      <tr><td><b>2 · Seçilen yeni akış</b></td><td>Üç gözden üç akıştan seçilen (etki × efor) · ≤6 adım · İnsan / YZ / Ajan · insana devretme koşulu</td><td>2</td></tr>
-      <tr><td><b>3 · Kimin için ne değişti</b></td><td>Hikâye: 3 cümle, rol dili</td><td>2</td></tr>
-      <tr><td><b>4 · Fark ve fikir</b></td><td>Fark → israf/fırsat cümlesi · seçilen SCAMPER fikri (etki × efor)</td><td>2</td></tr>
+      <tr><td><b>1 · Süreç ve israf / fırsat</b></td><td>Menü seçimi (varsa) · süreç · mevcut akış ≤6 adım · israf/fırsat cümlesi · kök neden</td><td>1</td></tr>
+      <tr><td><b>2 · Seçilen yeni akış</b></td><td>Müşteri, çalışan, süreç sahibi gözünden üç alternatiften seçilen (etki × efor) · ≤6 adım · İnsan / YZ / Ajan · insana devretme koşulu</td><td>2</td></tr>
+      <tr><td><b>3 · SCAMPER fikri</b></td><td>Seçilen akıştaki israfı kaldıran / fırsatı değerlendiren tek fikir · SCAMPER harfi</td><td>2</td></tr>
+      <tr><td><b>4 · Ölçüt çifti</b></td><td>Sonuç ölçütü (ad · formül · hedef) + denge ölçütü (bozulmaması gereken · eşik)</td><td>2</td></tr>
       <tr><td><b>5 · Hipotez · 30 sn pitch</b></td><td>Gerilim · çözüm · sayı (sonuç + denge ölçütü, 2 hafta)</td><td>3</td></tr>
-      <tr><td><b>6 · Pre-Mortem ve hipotez v2</b></td><td>En büyük risk · önlem · güçlendirilmiş hipotez · en büyük belirsizlik</td><td>3</td></tr>
+      <tr><td><b>6 · Pre-Mortem</b></td><td>En büyük risk · önlemi · geliştirilmiş hipotez (önlemi içerir) · durma kuralı · şüpheci notu</td><td>3</td></tr>
       <tr><td><b>7 · Görsel özet ve karar</b></td><td>Başlık ≤8 kelime · yöneticiden istenen tek karar · kapsam, sahip, tarih</td><td>4</td></tr>
     </table>
-    <p class="mini" style="margin:8px 0 0">Kartı bu sayfadaki Adım 1–4 kutuları oluşturur; "Kartı kopyala" düğmesi 1–6 alanlarını Gemini'ye yapıştırılacak biçimde toplar. "[?]" = "bilmiyoruz, ölçeceğiz".</p>
+    <p class="mini" style="margin:8px 0 0">Kartı bu sayfadaki Menü ve Adım 1–4 kutuları oluşturur; "Kartı kopyala" düğmesi 1–6 alanlarını Gemini'ye yapıştırılacak biçimde toplar. "[?]" = "bilmiyoruz, ölçeceğiz".</p>
   </div>
 </div></section>
 
@@ -1121,6 +1396,15 @@ KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
       <label for="g_geri">Bize gelen en işe yarar not</label><input type="text" id="g_geri" data-key="g_geri">
       <div class="toolbar"><button class="btn" data-copy="galeri">Kopyala</button><span class="saved" id="sv_galeri">Kaydedildi</span></div>
     </div>
+  </div>
+  <div class="facnote fac-only">
+    <h4>Kolaylaştırıcı notu · galeri</h4>
+    <ul>
+      <li>Sözcüyü 3. dakikada durdurun; “istenen karar” cümlesine gelmediyse onu söyletin — galerinin amacı karar, görsel değil.</li>
+      <li>Her grup için tek geri bildirim sorusu: “Durma kuralınız hangi gün, hangi eşikte tetikleniyor?” Cevap yoksa “Şartlı hazır: durma kuralını yazın” notu düşün.</li>
+      <li>“En cesur muhakeme” oylamasında en çok oy alan grubun şüpheci notunu odaya okuyun: muhakeme, bilmediğini söyleyebilmektir.</li>
+      <li>Grupların kartlarını canlı izlemek için sayfa sonundaki <a href="#kolay">Kolaylaştırıcı paneli</a>ni kullanın.</li>
+    </ul>
   </div>
 </div></section>
 
@@ -1155,15 +1439,46 @@ KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
 <section id="notlar"><div class="wrap">
   <p class="kicker blue">Notlarım</p>
   <h2>Bugün yazdıklarım</h2>
-  <p class="lead">Bu sayfadaki bütün kutular yalnızca sizin tarayıcınızda saklanır (sayfayı kapatsanız da kalır). Gün sonunda tek dosya olarak indirebilir ya da tamamını kopyalayıp kendinize gönderebilirsiniz. Grubunuzun kartlarını (zaman haritası, Görev Gem'i, Beyaz Sayfa Kartı) yazıcı tutar; galeri sonunda kopyalayıp sohbete yapıştırır.</p>
+  <p class="lead">Bu sayfadaki bütün kutular sizin tarayıcınızda saklanır (sayfayı kapatsanız da kalır); grup kartları ayrıca grubunuzun ortak kaydına yazılır ve diğer üyelerde de görünür. Gün sonunda tek dosya olarak indirebilir ya da tamamını kopyalayıp kendinize gönderebilirsiniz. Grubunuzun kartlarını (zaman haritası, Görev Gem'i, Beyaz Sayfa Kartı) yazıcı tutar; galeri sonunda kopyalayıp sohbete yapıştırır.</p>
   <div class="toolbar">
     <button class="btn" id="btnAll">Tüm notlarımı kopyala</button>
     <button class="btn ghost" id="btnDl">Metin dosyası olarak indir</button>
     <button class="btn ghost" id="btnClear" style="color:var(--red);border-color:var(--red)">Notlarımı sil</button>
   </div>
   <textarea id="allnotes" readonly style="margin-top:14px;min-height:200px;font-size:.9rem;background:#FAFBFD" aria-label="Tüm notlarım"></textarea>
-  <p class="small muted" style="margin-top:8px">Not: Farklı bir cihaz ya da tarayıcıdan açarsanız notlar görünmez; önce buradan kopyalayın.</p>
+  <p class="small muted" style="margin-top:8px">Not: Farklı bir cihaz ya da tarayıcıdan açarsanız kişisel notlarınız görünmez (grup kartları, aynı grubu seçtiğinizde gelir); önce buradan kopyalayın.</p>
 </div></section>
+
+<!-- ============ KOLAYLAŞTIRICI PANELİ ============ -->
+<section id="kolay" class="fac-only"><div class="wrap">
+  <p class="kicker" style="color:var(--red)">Yalnızca kolaylaştırıcı</p>
+  <h2>Kolaylaştırıcı paneli · beş grup canlı</h2>
+  <p class="lead">Grupların ortak kartları burada anlık görünür (Firebase bağlıysa). Paylaşım ve galeri sırasında beş göstergeyi ya da beş hipotezi yan yana okumak için.</p>
+  <div class="toolbar" style="margin-bottom:12px">
+    <label for="pnl_sec" style="margin:0">Görünüm</label>
+    <select id="pnl_sec" style="width:auto">
+      <option value="frontelco">Frontelco · 3 soru</option>
+      <option value="kart">Beyaz Sayfa Kartı · alan 1–6</option>
+      <option value="a4">Görsel özet ve karar</option>
+      <option value="tanisma">Tanışma · beklentiler</option>
+      <option value="ozet">Blok 1 · kas notları</option>
+      <option value="kapanis">Kapanış · taahhütler</option>
+    </select>
+    <button class="btn ghost" type="button" id="pnl_copy">Görünümü kopyala</button>
+  </div>
+  <div class="panelgrid" id="panel"><p class="muted">Canlı bağlantı yok: panel yalnızca veritabanı adresi girildiğinde dolar.</p></div>
+</div></section>
+
+<div class="modal" id="facModal" role="dialog" aria-modal="true" aria-labelledby="facTitle">
+  <div class="box">
+    <h3 id="facTitle">Kolaylaştırıcı modu</h3>
+    <p class="small muted" style="margin:0 0 6px">Kolaylaştırıcı notları ve örnek cevaplar bu modda görünür.</p>
+    <label for="facPin">Şifre</label>
+    <input type="password" id="facPin" inputmode="numeric" autocomplete="off" maxlength="12">
+    <p class="err" id="facErr"></p>
+    <div class="toolbar"><button class="btn" type="button" id="facOk">Aç</button><button class="btn ghost" type="button" id="facCancel">Vazgeç</button></div>
+  </div>
+</div>
 
 <footer><div class="wrap">Global Bilgi × MCT · Yapay Zekâ Uygulamaları Atölyesi · Katılımcı sayfası · Açılış, Blok 1–3 ve kapanış · Değer = YZ Hızı × İnsan Muhakemesi · Ali Rıza Küçük, MCT Management Centre Türkiye · Ekim 2026</div></footer>
 
@@ -1174,15 +1489,16 @@ KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
   var SECTIONS={
     tanisma:{title:'TANIŞMA · cebime koymak istediğim öğrenim',pre:['t_']},
     gem:{title:"ATÖLYE GEM'İMİ KURUYORUM",pre:['gem_']},
+    ajanlar:{title:'GOOGLE EKOSİSTEMİNDE YZ AJANLARI · NOTUM',pre:['ajan_']},
     global:{title:'GLOBAL ÖRNEKLER',pre:['global_']},
     frontelco:{title:'FRONTELCO · GRUP KARTI',pre:['front_']},
-    ozet:{title:'BLOK 1 · NOTUM',pre:['ozet_']},
+    ozet:{title:'BLOK 1 · GRUP NOTLARI',pre:['ozet_']},
     u1:{title:'BLOK 2 · UYGULAMA 1 · ZAMAN HARİTASI',pre:['u1_']},
     u2:{title:'BLOK 2 · UYGULAMA 2 · İLK DEVREDİLECEK İŞ',pre:['u2_']},
     u3:{title:"BLOK 2 · UYGULAMA 3 · GÖREV GEM'İ",pre:['u3_']},
     b2k:{title:'BLOK 2 · ALTI AY SONRAKİ HAFTAM İÇİN İLK KARAR',pre:['b2_']},
     a1:{title:'BEYAZ SAYFA KARTI · 1 · SÜREÇ VE İSRAF/FIRSAT',pre:['a1_']},
-    a2:{title:'BEYAZ SAYFA KARTI · 2–4 · AKIŞ, HİKÂYE, FARK VE FİKİR',pre:['a2_']},
+    a2:{title:'BEYAZ SAYFA KARTI · 2–4 · YENİ AKIŞ, SCAMPER FİKRİ, ÖLÇÜT ÇİFTİ',pre:['a2_']},
     a3:{title:'BEYAZ SAYFA KARTI · 5–6 · HİPOTEZ VE PRE-MORTEM',pre:['a3_']},
     a4:{title:'BEYAZ SAYFA KARTI · 7 · GÖRSEL ÖZET VE KARAR',pre:['a4_']},
     kart:{title:'BEYAZ SAYFA KARTI · ALAN 1–6',pre:['a1_','a2_','a3_']},
@@ -1213,14 +1529,96 @@ KART: [yapıştırın] · HİPOTEZ v2: [yapıştırın]</pre>
   var inputs=document.querySelectorAll('[data-key]');
   inputs.forEach(function(el){var k=el.getAttribute('data-key');order.push(k);labels[k]=labelOf(el);
     if(el.type==='checkbox'){el.checked=!!store[k];}else if(store[k]!=null)el.value=store[k];
-    function upd(){store[k]=el.type==='checkbox'?el.checked:el.value;save();var sec=el.closest('section');if(sec)flash(sec.id);var card=el.closest('.card');if(card){var sv=card.querySelector('.saved');if(sv){sv.classList.add('on');clearTimeout(sv._t);sv._t=setTimeout(function(){sv.classList.remove('on');},1200);}}if(k==='grup')refreshGroup();refreshAll();}
+    function upd(){store[k]=el.type==='checkbox'?el.checked:el.value;save();var sec=el.closest('section');if(sec)flash(sec.id);var card=el.closest('.card');if(card){var sv=card.querySelector('.saved');if(sv){sv.classList.add('on');clearTimeout(sv._t);sv._t=setTimeout(function(){sv.classList.remove('on');},1200);}}if(k==='grup'){refreshGroup();onGroupChange();}refreshAll();if(k==='a1_menu')refreshMenu();queuePush(k);}
     el.addEventListener('input',upd);el.addEventListener('change',upd);});
   document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){copyText(build(b.getAttribute('data-copy')),b);});});
   document.querySelectorAll('[data-copytext]').forEach(function(b){b.addEventListener('click',function(){var el=document.getElementById(b.getAttribute('data-copytext'));copyText(el.innerText,b);});});
   document.getElementById('btnAll').addEventListener('click',function(){copyText(buildAll(),this);});
   document.getElementById('btnDl').addEventListener('click',function(){var blob=new Blob([buildAll()],{type:'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='YZ-Atolyesi-Notlarim.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);});
-  document.getElementById('btnClear').addEventListener('click',function(){if(confirm('Bu sayfadaki bütün notlarınız silinecek. Emin misiniz?')){store={};save();inputs.forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value='';});refreshGroup();refreshAll();}});
+  document.getElementById('btnClear').addEventListener('click',function(){if(confirm('Bu cihazdaki bütün notlarınız silinecek (grup kartları grubunuzun ortak kaydında kalır). Emin misiniz?')){store={};save();inputs.forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value='';});refreshGroup();refreshAll();}});
   refreshGroup();refreshAll();
+  /* ================= v3: menü seçimi ================= */
+  var menuInput=document.getElementById('a1_menu');
+  function setField(id,v){var el=document.getElementById(id);if(!el)return;el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));}
+  function refreshMenu(){var v=val('a1_menu');document.querySelectorAll('table.menu tr.pick').forEach(function(tr){tr.classList.toggle('sel',!!v&&tr.getAttribute('data-pick')===v);});var sh=document.getElementById('a1MenuShow');if(sh)sh.textContent=v||'—';}
+  document.querySelectorAll('table.menu tr.pick').forEach(function(tr){tr.addEventListener('click',function(){var v=tr.getAttribute('data-pick');setField('a1_menu',v);var su=document.getElementById('a1_surec');var cur=su?su.value.trim():'';if(su&&(!cur||/^[İF]\d · /.test(cur))){setField('a1_surec',v.split(' · küçük parça')[0]);}refreshMenu();});});
+  document.getElementById('menuClear').addEventListener('click',function(){setField('a1_menu','');refreshMenu();});
+
+  /* ================= v3: kolaylaştırıcı modu ================= */
+  var FAC_H=2088294962, facOn=false;
+  function h32(t){var h=5381;for(var i=0;i<t.length;i++){h=((h<<5)+h+t.charCodeAt(i))|0;}return h;}
+  function setFac(on){facOn=on;document.body.classList.toggle('fac-on',on);document.getElementById('facBtn').innerHTML=on?'🔓<span class="t"> Kolaylaştırıcı · çık</span>':'🔒<span class="t"> Kolaylaştırıcı</span>';try{if(on)sessionStorage.setItem('gb_fac','1');else sessionStorage.removeItem('gb_fac');}catch(e){}if(on)subscribePanel();else unsubscribePanel();}
+  var modal=document.getElementById('facModal'),pin=document.getElementById('facPin'),perr=document.getElementById('facErr');
+  function openModal(){perr.textContent='';pin.value='';modal.classList.add('on');setTimeout(function(){pin.focus();},30);}
+  function closeModal(){modal.classList.remove('on');}
+  function tryPin(){if(h32(pin.value.trim())===FAC_H){closeModal();setFac(true);}else{perr.textContent='Şifre hatalı.';pin.select();}}
+  document.getElementById('facBtn').addEventListener('click',function(){if(facOn)setFac(false);else openModal();});
+  document.getElementById('facOk').addEventListener('click',tryPin);
+  document.getElementById('facCancel').addEventListener('click',closeModal);
+  pin.addEventListener('keydown',function(e){if(e.key==='Enter')tryPin();if(e.key==='Escape')closeModal();});
+  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+
+  /* ================= v3: Realtime Database (REST + canlı akış) ile grup kartları ================= */
+  var GROUP_PRE=['t_','ozet_','front_','u1_','u2_','u3_','b2_','a1_','a2_','a3_','a4_','g_','k_'];
+  function isGroupKey(k){return GROUP_PRE.some(function(p){return k.indexOf(p)===0;});}
+  var elsByKey={};inputs.forEach(function(el){var k=el.getAttribute('data-key');(elsByKey[k]=elsByKey[k]||[]).push(el);});
+  var DBURL=String(window.ATOLYE_DB_URL||'').replace(/\/+$/,'');if(!/^https:\/\//.test(DBURL))DBURL='';
+  var OTURUM=String(window.ATOLYE_OTURUM||'atolye1');
+  var FB={ready:!!DBURL,es:null,pes:null,doc:{},pending:{},timer:null,first:true,switching:false,prevGroup:val('grup'),groups:{}};
+  function gid(g){return g.toLowerCase().replace(/\s+/g,'');}
+  function nodeUrl(g){return DBURL+'/gbyz/'+OTURUM+(g?'/'+gid(g):'')+'.json';}
+  function setStatus(t,c){var e=document.getElementById('syncst');if(!e)return;e.textContent=t;e.className='sync'+(c?' '+c:'');}
+  function setEl(el,v){if(el.type==='checkbox')el.checked=!!v;else el.value=(v==null?'':v);}
+  function applyStream(obj,ev){var m;try{m=JSON.parse(ev.data);}catch(e){return null;}if(!m)return null;
+    var path=m.path||'/',data=m.data;
+    if(path==='/'){if(ev.type==='put')obj={};if(data&&typeof data==='object')Object.keys(data).forEach(function(k){obj[k]=data[k];});}
+    else{var parts=path.split('/').filter(Boolean);var o=obj;for(var i=0;i<parts.length-1;i++){if(!o[parts[i]]||typeof o[parts[i]]!=='object')o[parts[i]]={};o=o[parts[i]];}
+      var last=parts[parts.length-1];if(ev.type==='patch'&&data&&typeof data==='object'){if(!o[last]||typeof o[last]!=='object')o[last]={};Object.keys(data).forEach(function(k){o[last][k]=data[k];});}else if(data===null)delete o[last];else o[last]=data;}
+    return obj;}
+  function applyRemote(d){var changed=false;
+    Object.keys(elsByKey).forEach(function(k){if(!isGroupKey(k))return;if(FB.pending.hasOwnProperty(k))return;
+      var has=Object.prototype.hasOwnProperty.call(d,k);
+      if(!has){if(FB.first&&!FB.switching&&store[k]!=null&&store[k]!==''&&store[k]!==false){FB.pending[k]=store[k];schedule();}
+               else if(FB.first&&FB.switching&&store[k]!=null){delete store[k];elsByKey[k].forEach(function(el){setEl(el,'');});changed=true;}
+               return;}
+      var v=d[k];if(store[k]===v)return;store[k]=v;changed=true;
+      elsByKey[k].forEach(function(el){if(el===document.activeElement)return;setEl(el,v);});});
+    FB.first=false;if(changed){save();refreshAll();refreshMenu();}}
+  function schedule(){clearTimeout(FB.timer);FB.timer=setTimeout(flush,450);}
+  function flush(g){g=g||val('grup');if(!FB.ready||!g)return;var data=FB.pending;FB.pending={};if(!Object.keys(data).length)return;
+    fetch(nodeUrl(g),{method:'PATCH',body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error(r.status);}).catch(function(e){console.warn(e);setStatus('Yazılamadı · yerel','err');});}
+  function queuePush(k){if(!FB.ready||!val('grup')||!isGroupKey(k))return;FB.pending[k]=store[k]==null?'':store[k];schedule();}
+  function subscribe(){if(FB.es){FB.es.close();FB.es=null;}if(!FB.ready)return;var g=val('grup');
+    if(!g){setStatus('Canlı · grup seçin','wait');return;}
+    FB.first=true;FB.doc={};setStatus('Bağlanıyor…','wait');
+    var es=new EventSource(nodeUrl(g));FB.es=es;
+    function on(ev){var d=applyStream(FB.doc,ev);if(d===null)return;FB.doc=d;applyRemote(FB.doc);setStatus('Canlı · '+g,'on');}
+    es.addEventListener('put',on);es.addEventListener('patch',on);
+    es.addEventListener('cancel',function(){setStatus('İzin yok · yerel','err');es.close();});
+    es.onerror=function(){if(es.readyState===2)setStatus('Bağlantı yok · yerel','err');else setStatus('Yeniden bağlanıyor…','wait');};}
+  function onGroupChange(){var g=val('grup');if(g===FB.prevGroup)return;FB.switching=(FB.prevGroup!==''&&FB.prevGroup!==g);if(FB.ready){clearTimeout(FB.timer);flush(FB.prevGroup);subscribe();}FB.prevGroup=g;}
+  function initFB(){if(!FB.ready){setStatus('Yerel mod','');return;}subscribe();if(facOn)subscribePanel();}
+
+  /* ---- kolaylaştırıcı paneli ---- */
+  var PNL={ozet:['ozet_'],frontelco:['front_'],kart:['a1_','a2_','a3_'],a4:['a4_'],tanisma:['t_'],kapanis:['k_']};
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function panelText(g,d,pre){var out=[g];order.forEach(function(k){if(!pre.some(function(p){return k.indexOf(p)===0;}))return;var v=d[k];if(v===true)v='evet';if(v==null||v===''||v===false)return;out.push(labels[k]+': '+v);});return out;}
+  function renderPanel(){var box=document.getElementById('panel');if(!FB.ready){return;}var pre=PNL[document.getElementById('pnl_sec').value];
+    var html='';['Grup 1','Grup 2','Grup 3','Grup 4','Grup 5'].forEach(function(g){var d=FB.groups[g]||{};var lines=panelText(g,d,pre);
+      html+='<div class="pg"><h4>'+esc(g)+(LENS[g]?' <span class="mini">· '+esc(LENS[g].split(' — ')[0])+'</span>':'')+'</h4>';
+      if(lines.length<2)html+='<p class="mini" style="margin:0">Henüz giriş yok.</p>';
+      else{html+='<dl style="margin:0">';lines.slice(1).forEach(function(l){var i=l.indexOf(': ');html+='<dt>'+esc(l.slice(0,i))+'</dt><dd>'+esc(l.slice(i+2))+'</dd>';});html+='</dl>';}
+      html+='</div>';});box.innerHTML=html;}
+  function subscribePanel(){if(!FB.ready||FB.pes)return;var all={};var es=new EventSource(nodeUrl(''));FB.pes=es;
+    function on(ev){var d=applyStream(all,ev);if(d===null)return;all=d;FB.groups={};['Grup 1','Grup 2','Grup 3','Grup 4','Grup 5'].forEach(function(g){FB.groups[g]=all[gid(g)]||{};});renderPanel();}
+    es.addEventListener('put',on);es.addEventListener('patch',on);}
+  function unsubscribePanel(){if(FB.pes){FB.pes.close();FB.pes=null;}}
+  document.getElementById('pnl_sec').addEventListener('change',renderPanel);
+  document.getElementById('pnl_copy').addEventListener('click',function(){var pre=PNL[document.getElementById('pnl_sec').value];var t=['Grup 1','Grup 2','Grup 3','Grup 4','Grup 5'].map(function(g){return panelText(g,FB.groups[g]||{},pre).join('\n');}).join('\n\n');copyText(t,this);});
+
+  refreshMenu();
+  try{if(sessionStorage.getItem('gb_fac')==='1')setFac(true);}catch(e){}
+  initFB();
 })();
 </script>
 
